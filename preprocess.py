@@ -43,13 +43,6 @@ class Preprocessor:
             - 'mean' imputation for numerical features
             - 'most_frequent' imputation for categorical features
             - Scale all features
-
-        Parameters:
-            X_train (pd.DataFrame): Training features.
-            X_test (pd.DataFrame): Test features.
-
-        Returns:
-            tuple: (X_train_processed, X_test_processed)
         """
         print("Applying Preprocessing Strategy 1: Mean & Most Frequent Imputation")
         feature_groups = self._get_feature_groups(X_train)
@@ -77,20 +70,13 @@ class Preprocessor:
             - 'median' imputation for numerical features
             - 'constant' imputation with 'Unknown' for categorical features
             - Scale all features
-
-        Parameters:
-            X_train (pd.DataFrame): Training features.
-            X_test (pd.DataFrame): Test features.
-
-        Returns:
-            tuple: (X_train_processed, X_test_processed)
         """
         print("Applying Preprocessing Strategy 2: Median & Constant Imputation")
         feature_groups = self._get_feature_groups(X_train)
 
         transformers = [
-            ('num_imputer', SimpleImputer(strategy='median'), feature_groups['numerical']),
-            ('cat_imputer', SimpleImputer(strategy='constant', fill_value='Unknown'), feature_groups['categorical'])
+            ('num_imputer', SimpleImputer(strategy='median'), feature_groups['numerical'])
+            # ('cat_imputer', SimpleImputer(strategy='constant', fill_value='Unknown'), feature_groups['categorical'])
         ]
 
         self.pipeline = Pipeline(steps=[
@@ -110,13 +96,6 @@ class Preprocessor:
         Strategy 3:
             - 'mean' imputation for all features
             - Scale all features
-
-        Parameters:
-            X_train (pd.DataFrame): Training features.
-            X_test (pd.DataFrame): Test features.
-
-        Returns:
-            tuple: (X_train_processed, X_test_processed)
         """
         print("Applying Preprocessing Strategy 3: Mean Imputation for All Features")
         imputer = SimpleImputer(strategy='mean')
@@ -152,8 +131,8 @@ class Preprocessor:
         feature_groups = self._get_feature_groups(X_train)
 
         transformers = [
-            ('knn_imputer', KNNImputer(n_neighbors=n_neighbors), feature_groups['numerical']),
-            ('cat_imputer', SimpleImputer(strategy='most_frequent'), feature_groups['categorical'])
+            ('knn_imputer', KNNImputer(n_neighbors=n_neighbors), feature_groups['numerical'])
+            # ('cat_imputer', SimpleImputer(strategy='most_frequent'), feature_groups['categorical'])
         ]
 
         self.pipeline = Pipeline(steps=[
@@ -188,8 +167,8 @@ class Preprocessor:
         feature_groups = self._get_feature_groups(X_train)
 
         transformers = [
-            ('mice_imputer', IterativeImputer(max_iter=max_iter, random_state=random_state), feature_groups['numerical']),
-            ('cat_imputer', SimpleImputer(strategy='most_frequent'), feature_groups['categorical'])
+            ('mice_imputer', IterativeImputer(max_iter=max_iter, random_state=random_state), feature_groups['numerical'])
+            # ('cat_imputer', SimpleImputer(strategy='most_frequent'), feature_groups['categorical'])
         ]
 
         self.pipeline = Pipeline(steps=[
@@ -204,13 +183,3 @@ class Preprocessor:
 
         return X_train_processed, X_test_processed
 
-    def get_feature_columns(self):
-        """
-        Get the list of feature columns after preprocessing.
-
-        Returns:
-            list: List of feature column names.
-        """
-        if not self.fitted:
-            raise Exception("Preprocessor has not been fitted yet.")
-        return self.feature_columns

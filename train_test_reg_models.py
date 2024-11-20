@@ -184,8 +184,13 @@ def make_test_predictions(best_model_name, models, X_test):
 
 if __name__ == "__main__":
     # Load data
-    data_dir = '/Users/mansoor/Documents/GSU/Coursework/AML/Project/orig-kaggle/'
-    results_dir = "/Users/mansoor/Documents/GSU/Coursework/AML/Project/brist1d/results/"
+    # proj_dir = '/Users/mansoor/Documents/GSU/Coursework/AML/Project/'
+    proj_dir = "/home/mahmed76/Documents/Mansoor/Courses/AML/"
+
+    data_dir = proj_dir+ 'data/'
+    results_dir = proj_dir + "/brist1d/results/"
+
+
     train_data, test_data = load_data(data_dir+'train.csv', data_dir+'test.csv')
 
     # Preprocess data

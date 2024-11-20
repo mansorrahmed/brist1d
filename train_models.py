@@ -28,16 +28,17 @@ class ModelTrainer:
         """
         if models is None:
             self.models = {
-                'Linear Regression': LinearRegression(),
-                'Ridge Regression': Ridge(random_state=random_state),
-                'Lasso Regression': Lasso(random_state=random_state),
-                'Decision Tree': DecisionTreeRegressor(random_state=random_state),
-                'Random Forest': RandomForestRegressor(n_estimators=100, random_state=random_state),
-                'Gradient Boosting': GradientBoostingRegressor(n_estimators=100, random_state=random_state),
-                'XGBoost': xgb.XGBRegressor(n_estimators=100, random_state=random_state, verbosity=0),
-                'LightGBM': lgb.LGBMRegressor(n_estimators=100, random_state=random_state),
-                'Support Vector Regressor': SVR()
-            }
+        'Linear Regression': LinearRegression(),
+        'Ridge Regression': Ridge(),
+        'Lasso Regression': Lasso(),
+        'Decision Tree': DecisionTreeRegressor(random_state=42),
+        # 'Random Forest': RandomForestRegressor(n_estimators=100, random_state=42),
+        'Gradient Boosting': GradientBoostingRegressor(n_estimators=100, random_state=42),
+        'XGBoost': xgb.XGBRegressor(n_estimators=100, random_state=42, verbosity=0)
+        # 'LightGBM': lgb.LGBMRegressor(n_estimators=100, random_state=42),
+        # 'Support Vector Regressor': SVR()
+    }
+    
         else:
             self.models = models
         self.results = pd.DataFrame()
@@ -137,16 +138,16 @@ class ModelTrainer:
 
     def plot_results(self, filename='model_performance.png'):
         """
-        Plot the performance metrics of the models based on RMSE.
+        Plot the performance metrics of the models based on MSE.
 
         Parameters:
             filename (str): Name of the file to save the plot.
         """
-        results_sorted = self.results.sort_values(by='RMSE').reset_index(drop=True)
+        results_sorted = self.results.sort_values(by='MSE').reset_index(drop=True)
         plt.figure(figsize=(12, 6))
-        sns.barplot(x='RMSE', y='Model', data=results_sorted, palette='viridis')
-        plt.title('Model Comparison based on RMSE', fontsize=16)
-        plt.xlabel('RMSE', fontsize=14)
+        sns.barplot(x='MSE', y='Model', data=results_sorted, palette='viridis')
+        plt.title('Model Comparison based on MSE', fontsize=16)
+        plt.xlabel('MSE', fontsize=14)
         plt.ylabel('Regression Models', fontsize=14)
         plt.tight_layout()
         plt.savefig(filename, dpi=300)
@@ -202,3 +203,31 @@ class ModelTrainer:
         })
         submission.to_csv(filename, index=False)
         print(f"Test set predictions saved to {filename}")
+
+    def train_test_save_models(self, X_train_processed, X_test_processed, y_train, test_ids, strategy_type, results_dir):
+            # Split data into training and validation sets
+        X_train_split, X_val_split, y_train_split, y_val_split = self.split_data(
+            X_train_processed, y_train, test_size=0.2, random_state=42
+        )
+
+        # Train and evaluate models
+        self.train_and_evaluate(X_train_split, X_val_split, y_train_split, y_val_split)
+
+        # Display results
+        self.display_results()
+
+        # Save results
+        self.save_results(results_dir+f'model_performance_{strategy_type}.csv')
+
+        # Plot results
+        self.plot_results(results_dir+f'model_performance_{strategy_type}.png')
+
+        # Retrain the best model on the entire training set
+        self.retrain_best_model(X_train_processed, y_train)
+
+        # Make predictions on the test set
+        predictions = self.predict_test(X_test_processed)
+
+        # Save predictions
+        self.save_predictions(test_ids, predictions, results_dir+f'test_predictions_{strategy_type}.csv')
+

@@ -1,31 +1,55 @@
+# main.py
+
 import pandas as pd
-import re
+import argparse
 from preprocess import Preprocessor
 from train_models import ModelTrainer  # Ensure you have the train_models.py as previously defined
 
 def main():
     # =========================
-    # Step 1: Load Data Externally
+    # Step 1: Parse Command-Line Arguments
+    # =========================
+    parser = argparse.ArgumentParser(description='Data Preprocessing and Model Training Script')
+    parser.add_argument(
+        '--strategy',
+        type=str,
+        required=True,
+        choices=[
+            "mean_med_const_imp_1",
+            "mean_med_const_imp_2",
+            "mean_imp_all_features",
+            "knn_imp",
+            "mice_imp"
+        ],
+        help='Imputation strategy to use. Choices are: mean_med_const_imp_1, mean_med_const_imp_2, mean_imp_all_features, knn_imp, mice_imp'
+    )
+    args = parser.parse_args()
+    strategy_type = args.strategy
+
+    # =========================
+    # Step 2: Load Data 
     # =========================
     print("Loading data...")
     
-    # Load data
-    data_dir = '/Users/mansoor/Documents/GSU/Coursework/AML/Project/orig-kaggle/'
-    results_dir = "/Users/mansoor/Documents/GSU/Coursework/AML/Project/brist1d/results/"
-    train_df = pd.read_csv(data_dir+'train.csv')
-    test_df = pd.read_csv(data_dir+'test.csv')
+    # Define project directories
+    # proj_dir = '/Users/mansoor/Documents/GSU/Coursework/AML/Project/'
+    proj_dir = "/home/mahmed76/Documents/Mansoor/Courses/AML/"
 
-    print("Data loaded and categorical features converted.\n")
+    data_dir = proj_dir + 'data/'
+    results_dir = proj_dir + "/brist1d/results/"
 
+    # Load datasets
+    train_df = pd.read_csv(data_dir + 'train.csv')
+    test_df = pd.read_csv(data_dir + 'test.csv')
+
+    print("Data loaded successfully.\n")
 
     # =========================
-    # Step 2: Initialize Preprocessor
+    # Step 3: Initialize Preprocessor and Apply Selected Preprocessing Strategy
     # =========================
-    preprocessor = Preprocessor(target_column='bg+1:00')  # Ensure target column is sanitized
 
-    # =========================
-    # Step 3: Choose and Apply Preprocessing Strategy
-    # =========================
+    preprocessor = Preprocessor(target_column='bg+1:00') 
+
     # Define feature columns by excluding target and non-feature columns
     feature_cols = [col for col in train_df.columns if col not in ['bg+1:00', 'id', 'p_num', 'time']]
     
@@ -34,58 +58,55 @@ def main():
     y_train = train_df['bg+1:00']
     X_test = test_df[feature_cols]
     test_ids = test_df['id']
+    # exclude the carbs and activity features because of very high percentage of missing values
+    X_train = X_train.loc[:, ~X_train.columns.str.startswith('activity-')]
+    X_train = X_train.loc[:, ~X_train.columns.str.startswith('carbs-')]
+    X_test = X_test.loc[:, ~X_test.columns.str.startswith('activity-')]
+    X_test = X_test.loc[:, ~X_test.columns.str.startswith('carbs-')]
 
-    # Strategy Selection: Uncomment the desired strategy
-    # Strategy 1: Mean, Median, and Constant Imputation
-    X_train_processed, X_test_processed = preprocessor.preprocess_strategy1(X_train, X_test)
-    print("Selected Preprocessing Strategy 1.\n")
 
-    # Strategy 2: Median, Mean, and Constant Imputation
-    # X_train_processed, X_test_processed = preprocessor.preprocess_strategy2(X_train, X_test)
-    # print("Selected Preprocessing Strategy 2.\n")
+    # Map strategy names to Preprocessor methods
+    strategy_methods = {
+        "mean_med_const_imp_1": preprocessor.preprocess_strategy1,
+        "mean_med_const_imp_2": preprocessor.preprocess_strategy2,
+        "mean_imp_all_features": preprocessor.preprocess_strategy3,
+        "knn_imp": preprocessor.preprocess_strategy4,
+        "mice_imp": preprocessor.preprocess_strategy5
+    }
 
-    # Strategy 3: Mean Imputation for All Features
-    # X_train_processed, X_test_processed = preprocessor.preprocess_strategy3(X_train, X_test)
-    # print("Selected Preprocessing Strategy 3.\n")
+    # Check if the selected strategy exists
+    if strategy_type not in strategy_methods:
+        print(f"Error: Strategy '{strategy_type}' is not recognized.")
+        print("Available strategies are:")
+        for strat in strategy_methods.keys():
+            print(f" - {strat}")
+        return
 
-    # Strategy 4: K-Nearest Neighbors (KNN) Imputation
-    # X_train_processed, X_test_processed = preprocessor.preprocess_strategy4(X_train, X_test, n_neighbors=5)
-    # print("Selected Preprocessing Strategy 4.\n")
+    # Apply the selected preprocessing strategy
+    preprocess_func = strategy_methods[strategy_type]
+    if strategy_type == "knn_imp":
+        # Example: You can set n_neighbors as needed or make it another argument
+        X_train_processed, X_test_processed = preprocess_func(X_train, X_test, n_neighbors=5)
+    elif strategy_type == "mice_imp":
+        # Example: You can set max_iter and random_state as needed or make them arguments
+        X_train_processed, X_test_processed = preprocess_func(X_train, X_test, max_iter=10, random_state=42)
+    else:
+        X_train_processed, X_test_processed = preprocess_func(X_train, X_test)
 
-    # Strategy 5: Iterative Imputer (MICE) Imputation
-    # X_train_processed, X_test_processed = preprocessor.preprocess_strategy5(X_train, X_test, max_iter=10, random_state=42)
-    # print("Selected Preprocessing Strategy 5.\n")
+    print(f"Selected Preprocessing Strategy: {strategy_type}\n")
 
     # =========================
     # Step 4: Initialize and Use ModelTrainer
     # =========================
     model_trainer = ModelTrainer()
-
-    # Split data into training and validation sets
-    X_train_split, X_val_split, y_train_split, y_val_split = model_trainer.split_data(
-        X_train_processed, y_train, test_size=0.2, random_state=42
+    model_trainer.train_test_save_models(
+        X_train_processed=X_train_processed,
+        X_test_processed=X_test_processed,
+        y_train=y_train,
+        test_ids=test_ids,
+        strategy_type=strategy_type,
+        results_dir=results_dir
     )
-
-    # Train and evaluate models
-    model_trainer.train_and_evaluate(X_train_split, X_val_split, y_train_split, y_val_split)
-
-    # Display results
-    model_trainer.display_results()
-
-    # Save results
-    model_trainer.save_results(results_dir+'model_performance_strategy1.csv')
-
-    # Plot results
-    model_trainer.plot_results(results_dir+'model_performance_strategy1.png')
-
-    # Retrain the best model on the entire training set
-    model_trainer.retrain_best_model(X_train_processed, y_train)
-
-    # Make predictions on the test set
-    predictions = model_trainer.predict_test(X_test_processed)
-
-    # Save predictions
-    model_trainer.save_predictions(test_ids, predictions, results_dir+'test_predictions_strategy1.csv')
 
     print("\nPreprocessing, training, evaluation, and prediction completed successfully.")
 
