@@ -1,17 +1,20 @@
-# main.py
-
 import pandas as pd
 import argparse
 from preprocess import Preprocessor
-from train_models import ModelTrainer  # Ensure you have the train_models.py as previously defined
-
+from train_models import ModelTrainer  
+import time
 def main():
     # =========================
     # Step 1: Parse Command-Line Arguments
     # =========================
     parser = argparse.ArgumentParser(description='Data Preprocessing and Model Training Script')
     parser.add_argument(
-        '--strategy',
+        '--proj_dir', 
+        type=str,
+        required=True
+        )
+    parser.add_argument(
+        '--strategy', 
         type=str,
         required=True,
         choices=[
@@ -25,6 +28,7 @@ def main():
     )
     args = parser.parse_args()
     strategy_type = args.strategy
+    proj_dir = args.proj_dir
 
     # =========================
     # Step 2: Load Data 
@@ -33,7 +37,7 @@ def main():
     
     # Define project directories
     # proj_dir = '/Users/mansoor/Documents/GSU/Coursework/AML/Project/'
-    proj_dir = "/home/mahmed76/Documents/Mansoor/Courses/AML/"
+    # proj_dir = "/home/mahmed76/Documents/Mansoor/Courses/AML/"
 
     data_dir = proj_dir + 'data/'
     results_dir = proj_dir + "/brist1d/results/"
@@ -84,6 +88,9 @@ def main():
 
     # Apply the selected preprocessing strategy
     preprocess_func = strategy_methods[strategy_type]
+    print(f"Started Selected Preprocessing Strategy: {strategy_type}\n")
+    start_time = time.time()
+
     if strategy_type == "knn_imp":
         # Example: You can set n_neighbors as needed or make it another argument
         X_train_processed, X_test_processed = preprocess_func(X_train, X_test, n_neighbors=5)
@@ -93,7 +100,8 @@ def main():
     else:
         X_train_processed, X_test_processed = preprocess_func(X_train, X_test)
 
-    print(f"Selected Preprocessing Strategy: {strategy_type}\n")
+    preprocessing_time = time.time() - start_time
+    print(f"Preprocessing Strategy {strategy_type} completed in {preprocessing_time} seconds..\n")
 
     # =========================
     # Step 4: Initialize and Use ModelTrainer
@@ -105,6 +113,7 @@ def main():
         y_train=y_train,
         test_ids=test_ids,
         strategy_type=strategy_type,
+        preprocessing_time=preprocessing_time,
         results_dir=results_dir
     )
 

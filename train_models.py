@@ -98,7 +98,9 @@ class ModelTrainer:
                 'MSE': mse,
                 'RMSE': rmse,
                 'R2 Score': r2,
-                'Training Time (s)': round(training_time, 4)
+                'Training Time (s)': round(training_time, 4),
+                "Strategy type": self.strategy_type,
+                "Preprocessing time": self.preprocessing_time
             })
             print(f"{name} trained in {round(training_time, 4)} seconds.")
 
@@ -204,8 +206,11 @@ class ModelTrainer:
         submission.to_csv(filename, index=False)
         print(f"Test set predictions saved to {filename}")
 
-    def train_test_save_models(self, X_train_processed, X_test_processed, y_train, test_ids, strategy_type, results_dir):
+    def train_test_save_models(self, X_train_processed, X_test_processed, y_train, test_ids, strategy_type,preprocessing_time, results_dir):
             # Split data into training and validation sets
+        self.preprocessing_time = preprocessing_time
+        self.strategy_type = strategy_type
+
         X_train_split, X_val_split, y_train_split, y_val_split = self.split_data(
             X_train_processed, y_train, test_size=0.2, random_state=42
         )
