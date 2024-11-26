@@ -4,6 +4,9 @@ from preprocess import Preprocessor
 from train_models import ModelTrainer  
 import time
 import os
+import warnings
+
+warnings.filterwarnings('ignore')  # Suppress warnings for cleaner output
 
 def main():
     # =========================

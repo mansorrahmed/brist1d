@@ -9,6 +9,9 @@ from sklearn.pipeline import Pipeline
 import tensorflow as tf
 from tensorflow import keras
 from keras import layers, models
+import warnings
+
+warnings.filterwarnings('ignore')  # Suppress warnings for cleaner output
 
 
 
