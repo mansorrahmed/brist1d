@@ -211,7 +211,7 @@ class Preprocessor:
         
         return model.predict(padded_sequences)
 
-    def preprocess_lstm_imputation(self, X_train, X_test, seq_length=10, epochs=5, batch_size=64):
+    def lstm_imp(self, X_train, X_test, seq_length=10, epochs=5, batch_size=64):
         """
         LSTM-based imputation for time-series data.
         """
@@ -257,7 +257,7 @@ class Preprocessor:
         print("LSTM-based Imputation completed.\n")
         return X_train_imputed, X_test_imputed
 
-    def preprocess_rnn_imputation(self, X_train, X_test, seq_length=10, epochs=5, batch_size=64):
+    def rnn_imp(self, X_train, X_test, seq_length=10, epochs=5, batch_size=64):
         """
         RNN-based imputation for time-series data.
         """
