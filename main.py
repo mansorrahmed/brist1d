@@ -64,9 +64,12 @@ def main():
     test_ids = test_df['id']
     # exclude the carbs and activity features because of very high percentage of missing values
     X_train = X_train.loc[:, ~X_train.columns.str.startswith('activity-')]
-    X_train = X_train.loc[:, ~X_train.columns.str.startswith('carbs-')]
     X_test = X_test.loc[:, ~X_test.columns.str.startswith('activity-')]
+    X_train = X_train.loc[:, ~X_train.columns.str.startswith('carbs-')]
     X_test = X_test.loc[:, ~X_test.columns.str.startswith('carbs-')]
+    X_train = X_train.loc[:, ~X_train.columns.str.startswith('insulin-')]
+    X_test = X_test.loc[:, ~X_test.columns.str.startswith('insulin-')]
+
 
 
     # Map strategy names to Preprocessor methods

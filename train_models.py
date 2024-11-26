@@ -5,10 +5,10 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression, Ridge, Lasso
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-from sklearn.svm import SVR
+from sklearn.experimental import enable_hist_gradient_boosting
+from sklearn.ensemble import HistGradientBoostingRegressor
 from sklearn.metrics import mean_squared_error, r2_score
 import xgboost as xgb
-# import lightgbm as lgb
 import matplotlib.pyplot as plt
 import seaborn as sns
 import warnings
@@ -32,11 +32,11 @@ class ModelTrainer:
         'Ridge Regression': Ridge(),
         'Lasso Regression': Lasso(),
         'Decision Tree': DecisionTreeRegressor(random_state=42),
-        # 'Random Forest': RandomForestRegressor(n_estimators=100, random_state=42),
-        'Gradient Boosting': GradientBoostingRegressor(n_estimators=100, random_state=42),
-        'XGBoost': xgb.XGBRegressor(n_estimators=100, random_state=42, verbosity=0)
-        # 'LightGBM': lgb.LGBMRegressor(n_estimators=100, random_state=42),
-        # 'Support Vector Regressor': SVR()
+        'Random Forest': RandomForestRegressor(n_estimators=100, n_jobs=-1, random_state=random_state),
+        'Gradient Boosting': GradientBoostingRegressor(n_estimators=100, random_state=random_state),
+        'Hist Gradient Boosting': HistGradientBoostingRegressor(max_iter=100, random_state=random_state),
+        'XGBoost': xgb.XGBRegressor(n_estimators=100, n_jobs=-1, random_state=random_state, verbosity=0)
+            
     }
     
         else:
