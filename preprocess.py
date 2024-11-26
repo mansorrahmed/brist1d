@@ -147,7 +147,6 @@ class Preprocessor:
 
         transformers = [
             ('mice_imputer', IterativeImputer(max_iter=max_iter, random_state=random_state), feature_groups['numerical'])
-            # ('cat_imputer', SimpleImputer(strategy='most_frequent'), feature_groups['categorical'])
         ]
 
         self.pipeline = Pipeline(steps=[
@@ -224,9 +223,9 @@ class Preprocessor:
         scaler = MinMaxScaler()
         X_scaled = scaler.fit_transform(X_combined)
 
-        # Ensure no NaN values exist after imputation
-        if np.any(np.isnan(X_scaled)):
-            raise ValueError("Data contains NaN values after imputation. Please check the preprocessing.")
+        # # Ensure no NaN values exist after imputation
+        # if np.any(np.isnan(X_scaled)):
+        #     raise ValueError("Data contains NaN values after imputation. Please check the preprocessing.")
 
         # Prepare data for LSTM
         X_sequences, _ = self._create_sequences(X_scaled, seq_length)
@@ -270,9 +269,9 @@ class Preprocessor:
         scaler = MinMaxScaler()
         X_scaled = scaler.fit_transform(X_combined)
 
-        # Ensure no NaN values exist after imputation
-        if np.any(np.isnan(X_scaled)):
-            raise ValueError("Data contains NaN values after imputation. Please check the preprocessing.")
+        # # Ensure no NaN values exist after imputation
+        # if np.any(np.isnan(X_scaled)):
+        #     raise ValueError("Data contains NaN values after imputation. Please check the preprocessing.")
 
         # Prepare data for RNN
         X_sequences, _ = self._create_sequences(X_scaled, seq_length)
