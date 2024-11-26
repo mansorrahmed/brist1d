@@ -92,7 +92,7 @@ def main():
             return
         else:
             # Apply the selected preprocessing strategy
-            preprocess_func = strategy_methods[strategy]
+            preprocess_func = strategy_methods[strategy]["method"]
             start_time = time.time()
             if strategy == "knn_imp":
                 X_train_processed, X_test_processed = preprocess_func(X_train, X_test, n_neighbors=5)
@@ -110,7 +110,7 @@ def main():
     else:
         # run all data imputation techniques and train each model on corresponding data
         for strategy in strategy_methods:
-            preprocess_func = strategy_methods[strategy]
+            preprocess_func = strategy_methods[strategy]["method"]
             print(f"Started Selected Preprocessing Strategy: {strategy}\n")
             start_time = time.time()
             X_train_processed, X_test_processed = preprocess_func(X_train, X_test)
