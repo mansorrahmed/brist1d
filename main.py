@@ -16,15 +16,9 @@ def main():
     parser.add_argument(
         '--strategy', 
         type=str,
-        required=True,
-        choices=[
-            "mean_med_const_imp_1",
-            "mean_med_const_imp_2",
-            "mean_imp_all_features",
-            "knn_imp",
-            "mice_imp"
-        ],
-        help='Imputation strategy to use. Choices are: mean_med_const_imp_1, mean_med_const_imp_2, mean_imp_all_features, knn_imp, mice_imp'
+        required=False,
+        choices=["mean_imp", "median_imp", "ffill_bfill_imp", "linear_interp_imp", "kalman_imp", "mice_imp", "knn_imp"],
+        help='Imputation strategy to use. Choices are: mean_imp, median_imp, ffill_bfill_imp, linear_interp_imp, kalman_imp, mice_imp, knn_imp'
     )
     args = parser.parse_args()
     strategy_type = args.strategy
@@ -53,6 +47,7 @@ def main():
     # =========================
 
     preprocessor = Preprocessor(target_column='bg+1:00') 
+    model_trainer = ModelTrainer()
 
     # Define feature columns by excluding target and non-feature columns
     feature_cols = [col for col in train_df.columns if col not in ['bg+1:00', 'id', 'p_num', 'time']]
@@ -74,53 +69,51 @@ def main():
 
     # Map strategy names to Preprocessor methods
     strategy_methods = {
-        "mean_med_const_imp_1": preprocessor.preprocess_strategy1,
-        "mean_med_const_imp_2": preprocessor.preprocess_strategy2,
-        "mean_imp_all_features": preprocessor.preprocess_strategy3,
-        "knn_imp": preprocessor.preprocess_strategy4,
-        "mice_imp": preprocessor.preprocess_strategy5
+        "mean_imp": {"method": preprocessor.mean_imp, "name": "Mean Imputation"},
+        "median_imp": {"method": preprocessor.median_imp, "name": "Median Imputation"}, 
+        "ffill_bfill_imp": {"method": preprocessor.ffill_bfill_imp, "name": "Forward-Backward Imputation"}, 
+        "linear_interp_imp": {"method": preprocessor.linear_interp_imp, "name": "Linear Interpolation"},
+        "kalman_imp": {"method": preprocessor.kalman_imp, "name": "Kalman Imputation"}, 
+        "mice_imp": {"method": preprocessor.mice_imp, "name": "Multilpe Imputation by Chained Equations"},  
+        "knn_imp": {"method": preprocessor.knn_imp, "name": "KNN Imputation"},  
     }
 
     # Check if the selected strategy exists
-    if strategy_type not in strategy_methods:
-        print(f"Error: Strategy '{strategy_type}' is not recognized.")
-        print("Available strategies are:")
-        for strat in strategy_methods.keys():
-            print(f" - {strat}")
-        return
+    if strategy_type != None:
+        if strategy_type not in strategy_methods:
+            print(f"Error: Strategy '{strategy_type}' is not recognized.")
+            return
+        else:
+            # Apply the selected preprocessing strategy
+            preprocess_func = strategy_methods[strategy_type]
+            start_time = time.time()
+            if strategy_type == "knn_imp":
+                X_train_processed, X_test_processed = preprocess_func(X_train, X_test, n_neighbors=5)
+            elif strategy_type == "mice_imp":
+                X_train_processed, X_test_processed = preprocess_func(X_train, X_test, max_iter=10, random_state=42)
+            else:
+                X_train_processed, X_test_processed = preprocess_func(X_train, X_test)
+            preprocessing_time = time.time() - start_time
+            print(f"Preprocessing Strategy {strategy_type} completed in {preprocessing_time} seconds..\n")
 
-    # Apply the selected preprocessing strategy
-    preprocess_func = strategy_methods[strategy_type]
-    print(f"Started Selected Preprocessing Strategy: {strategy_type}\n")
-    start_time = time.time()
+            model_trainer.train_test_save_models(X_train_processed, X_test_processed, y_train, test_ids, strategy_type,
+                                                 strategy_methods[strategy_type]["name"], preprocessing_time, results_dir)
+            print("\nPreprocessing, training, evaluation, and prediction completed successfully.")
 
-    if strategy_type == "knn_imp":
-        # Example: You can set n_neighbors as needed or make it another argument
-        X_train_processed, X_test_processed = preprocess_func(X_train, X_test, n_neighbors=5)
-    elif strategy_type == "mice_imp":
-        # Example: You can set max_iter and random_state as needed or make them arguments
-        X_train_processed, X_test_processed = preprocess_func(X_train, X_test, max_iter=10, random_state=42)
     else:
-        X_train_processed, X_test_processed = preprocess_func(X_train, X_test)
+        # run all data imputation techniques and train each model on corresponding data
+        for strategy in strategy_methods:
+            preprocess_func = strategy_methods[strategy]
+            print(f"Started Selected Preprocessing Strategy: {strategy}\n")
+            start_time = time.time()
+            X_train_processed, X_test_processed = preprocess_func(X_train, X_test)
+            preprocessing_time = time.time() - start_time
+            print(f"Preprocessing Strategy {strategy} completed in {preprocessing_time} seconds..\n")
+            model_trainer.train_test_save_models(X_train_processed, X_test_processed, y_train, test_ids, strategy, 
+                                                 strategy_methods[strategy_type]["name"], preprocessing_time, results_dir)
+            print("\nPreprocessing, training, evaluation, and prediction completed successfully.")
 
-    preprocessing_time = time.time() - start_time
-    print(f"Preprocessing Strategy {strategy_type} completed in {preprocessing_time} seconds..\n")
 
-    # =========================
-    # Step 4: Initialize and Use ModelTrainer
-    # =========================
-    model_trainer = ModelTrainer()
-    model_trainer.train_test_save_models(
-        X_train_processed=X_train_processed,
-        X_test_processed=X_test_processed,
-        y_train=y_train,
-        test_ids=test_ids,
-        strategy_type=strategy_type,
-        preprocessing_time=preprocessing_time,
-        results_dir=results_dir
-    )
-
-    print("\nPreprocessing, training, evaluation, and prediction completed successfully.")
-
+    
 if __name__ == "__main__":
     main()

@@ -131,24 +131,18 @@ class ModelTrainer:
     def save_results(self, filename='model_performance.csv'):
         """
         Save the performance metrics to a CSV file.
-
-        Parameters:
-            filename (str): Name of the CSV file to save the results.
         """
         self.results.to_csv(filename, index=False)
         print(f"\nModel performance results saved to {filename}")
 
     def plot_results(self, filename='model_performance.png'):
         """
-        Plot the performance metrics of the models based on MSE.
-
-        Parameters:
-            filename (str): Name of the file to save the plot.
+        Plot the performance metrics of the models based on MSE
         """
         results_sorted = self.results.sort_values(by='MSE').reset_index(drop=True)
         plt.figure(figsize=(12, 6))
         sns.barplot(x='MSE', y='Model', data=results_sorted, palette='viridis')
-        plt.title('Model Comparison based on MSE', fontsize=16)
+        plt.title(f'Model Comparison: {self.strategy_name}', fontsize=16)
         plt.xlabel('MSE', fontsize=14)
         plt.ylabel('Regression Models', fontsize=14)
         plt.tight_layout()
@@ -206,10 +200,11 @@ class ModelTrainer:
         submission.to_csv(filename, index=False)
         print(f"Test set predictions saved to {filename}")
 
-    def train_test_save_models(self, X_train_processed, X_test_processed, y_train, test_ids, strategy_type,preprocessing_time, results_dir):
+    def train_test_save_models(self, X_train_processed, X_test_processed, y_train, test_ids, strategy_type, strategy_name, preprocessing_time, results_dir):
             # Split data into training and validation sets
         self.preprocessing_time = preprocessing_time
         self.strategy_type = strategy_type
+        self.strategy_name = strategy_name
 
         X_train_split, X_val_split, y_train_split, y_val_split = self.split_data(
             X_train_processed, y_train, test_size=0.2, random_state=42
@@ -222,10 +217,10 @@ class ModelTrainer:
         self.display_results()
 
         # Save results
-        self.save_results(results_dir+f'model_performance_{strategy_type}.csv')
+        self.save_results(results_dir+f'performance/model_performance_{strategy_type}.csv')
 
         # Plot results
-        self.plot_results(results_dir+f'model_performance_{strategy_type}.png')
+        self.plot_results(results_dir+f'performance/model_performance_{strategy_type}.png')
 
         # Retrain the best model on the entire training set
         self.retrain_best_model(X_train_processed, y_train)
@@ -234,5 +229,5 @@ class ModelTrainer:
         predictions = self.predict_test(X_test_processed)
 
         # Save predictions
-        self.save_predictions(test_ids, predictions, results_dir+f'test_predictions_{strategy_type}.csv')
+        self.save_predictions(test_ids, predictions, results_dir+f'perdictions/test_predictions_{strategy_type}.csv')
 
