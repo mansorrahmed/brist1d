@@ -161,55 +161,6 @@ class Preprocessor:
 
         return X_train_processed, X_test_processed
 
-    def _create_sequences(self, data, seq_length):
-        """
-        Creates sequences of the data for time-series modeling.
-        """
-        sequences = []
-        for i in range(len(data) - seq_length):
-            seq_x = data[i:i + seq_length]
-            sequences.append(seq_x)
-        return np.array(sequences)
-
-    def _build_lstm_model(self, input_shape):
-        """
-        Builds the LSTM model.
-        """
-        model = models.Sequential([
-            layers.LSTM(50, activation='relu', input_shape=input_shape, return_sequences=True),
-            layers.LSTM(50, activation='relu', return_sequences=False),
-            layers.Dense(input_shape[1])
-        ])
-
-        model.compile(optimizer=optimizers.Adam(learning_rate=0.001), loss='mean_squared_error')
-
-        return model
-
-    def _build_rnn_model(self, input_shape):
-        """
-        Builds the RNN model.
-        """
-        model = models.Sequential([
-            layers.SimpleRNN(50, activation='relu', input_shape=input_shape, return_sequences=True),
-            layers.SimpleRNN(50, activation='relu', return_sequences=False),
-            layers.Dense(input_shape[1])
-        ])
-
-        model.compile(optimizer=optimizers.Adam(learning_rate=0.001), loss='mean_squared_error')
-
-        return model
-
-    def _impute_with_model(self, model, X_scaled, seq_length):
-        """
-        Impute missing values using a trained model.
-        """
-        # Pad the sequence with zeros for the missing values and predict
-        padded_sequences = np.zeros_like(X_scaled)
-        for i in range(seq_length, len(X_scaled)):
-            padded_sequences[i] = X_scaled[i - seq_length:i].flatten()
-        
-        return model.predict(padded_sequences)
-
     def lstm_imp(self, X_train, X_test, seq_length=10, epochs=5, batch_size=64):
         """
         LSTM-based imputation for time-series data.
@@ -228,7 +179,7 @@ class Preprocessor:
         #     raise ValueError("Data contains NaN values after imputation. Please check the preprocessing.")
 
         # Prepare data for LSTM
-        X_sequences, _ = self._create_sequences(X_scaled, seq_length)
+        X_sequences = self._create_sequences(X_scaled, seq_length)
 
         # Build LSTM model
         model = self._build_lstm_model(input_shape=(seq_length, X_train.shape[1]))
@@ -301,3 +252,53 @@ class Preprocessor:
 
         print("RNN-based Imputation completed.\n")
         return X_train_imputed, X_test_imputed
+    
+    
+    def _create_sequences(self, data, seq_length):
+        """
+        Creates sequences of the data for time-series modeling.
+        """
+        sequences = []
+        for i in range(len(data) - seq_length):
+            seq_x = data[i:i + seq_length]
+            sequences.append(seq_x)
+        return np.array(sequences)
+
+    def _build_lstm_model(self, input_shape):
+        """
+        Builds the LSTM model.
+        """
+        model = models.Sequential([
+            layers.LSTM(50, activation='relu', input_shape=input_shape, return_sequences=True),
+            layers.LSTM(50, activation='relu', return_sequences=False),
+            layers.Dense(input_shape[1])
+        ])
+
+        model.compile(optimizer=optimizers.Adam(learning_rate=0.001), loss='mean_squared_error')
+
+        return model
+
+    def _build_rnn_model(self, input_shape):
+        """
+        Builds the RNN model.
+        """
+        model = models.Sequential([
+            layers.SimpleRNN(50, activation='relu', input_shape=input_shape, return_sequences=True),
+            layers.SimpleRNN(50, activation='relu', return_sequences=False),
+            layers.Dense(input_shape[1])
+        ])
+
+        model.compile(optimizer=optimizers.Adam(learning_rate=0.001), loss='mean_squared_error')
+
+        return model
+
+    def _impute_with_model(self, model, X_scaled, seq_length):
+        """
+        Impute missing values using a trained model.
+        """
+        # Pad the sequence with zeros for the missing values and predict
+        padded_sequences = np.zeros_like(X_scaled)
+        for i in range(seq_length, len(X_scaled)):
+            padded_sequences[i] = X_scaled[i - seq_length:i].flatten()
+        
+        return model.predict(padded_sequences)
