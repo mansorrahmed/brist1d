@@ -3,6 +3,8 @@ import argparse
 from preprocess import Preprocessor
 from train_models import ModelTrainer  
 import time
+import os
+
 def main():
     # =========================
     # Step 1: Parse Command-Line Arguments
@@ -29,13 +31,19 @@ def main():
     # =========================
     print("Loading data...")
     
-    # Define project directories
     # proj_dir = '/Users/mansoor/Documents/GSU/Coursework/AML/Project/'
     # proj_dir = "/home/mahmed76/Documents/Mansoor/Courses/AML/"
 
     data_dir = proj_dir + 'data/'
     results_dir = proj_dir + "/brist1d/results/"
-
+    # check if the directories exist, if not then create them
+    if not os.path.isdir(results_dir):
+        os.mkdir(results_dir)
+    if not os.path.isdir(results_dir+"predictions/"):
+        os.mkdir(results_dir+"predictions/")
+    if not os.path.isdir(results_dir+"performance/"):
+        os.mkdir(results_dir+"performance/")
+    
     # Load datasets
     train_df = pd.read_csv(data_dir + 'train.csv')
     test_df = pd.read_csv(data_dir + 'test.csv')
@@ -64,7 +72,6 @@ def main():
     X_test = X_test.loc[:, ~X_test.columns.str.startswith('carbs-')]
     X_train = X_train.loc[:, ~X_train.columns.str.startswith('insulin-')]
     X_test = X_test.loc[:, ~X_test.columns.str.startswith('insulin-')]
-
 
 
     # Map strategy names to Preprocessor methods
