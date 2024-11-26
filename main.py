@@ -19,8 +19,8 @@ def main():
         '--strategy', 
         type=str,
         required=False,
-        choices=["mean_imp", "median_imp", "ffill_bfill_imp", "linear_interp_imp", "kalman_imp", "mice_imp", "knn_imp"],
-        help='Imputation strategy to use. Choices are: mean_imp, median_imp, ffill_bfill_imp, linear_interp_imp, kalman_imp, mice_imp, knn_imp'
+        choices=["mean_imp", "median_imp", "ffill_bfill_imp", "linear_interp_imp", "kalman_imp", "mice_imp", "knn_imp", "lstm_imp", "rnn_imp"],
+        help='Imputation strategy to use. Choices are: mean_imp, median_imp, ffill_bfill_imp, linear_interp_imp, kalman_imp, mice_imp, knn_imp, lstm_imp, rnn_imp'
     )
     args = parser.parse_args()
     strategy = args.strategy
@@ -83,6 +83,8 @@ def main():
         "kalman_imp": {"method": preprocessor.kalman_imp, "name": "Kalman Filter Imputation"}, 
         "mice_imp": {"method": preprocessor.mice_imp, "name": "Multilpe Imputation by Chained Equations"},  
         "knn_imp": {"method": preprocessor.knn_imp, "name": "KNN Imputation"},  
+        "lstm_imp": {"method": preprocessor.lstm_imp, "name": "LSTM Imputation"},  
+        "rnn_imp": {"method": preprocessor.rnn_imp, "name": "RNN Imputation"}
     }
 
     # Check if the selected strategy exists
@@ -98,6 +100,8 @@ def main():
                 X_train_processed, X_test_processed = preprocess_func(X_train, X_test, n_neighbors=5)
             elif strategy == "mice_imp":
                 X_train_processed, X_test_processed = preprocess_func(X_train, X_test, max_iter=10, random_state=42)
+            elif strategy in ["lstm_imp", "rnn_imp"]:
+               X_train_processed, X_test_processed = preprocess_func(X_train, X_test, seq_length=10, epochs=5, batch_size=64)
             else:
                 X_train_processed, X_test_processed = preprocess_func(X_train, X_test)
             preprocessing_time = time.time() - start_time
