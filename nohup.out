@@ -1,0 +1,207 @@
+/usr/local/lib/python3.7/dist-packages/sklearn/experimental/enable_hist_gradient_boosting.py:17: UserWarning: Since version 1.0, it is not needed to import enable_hist_gradient_boosting anymore. HistGradientBoostingClassifier and HistGradientBoostingRegressor are now stable and can be normally imported from sklearn.ensemble.
+  "Since version 1.0, "
+Loading data...
+Data loaded successfully.
+
+Started Selected Preprocessing Strategy: mean_imp
+
+Traceback (most recent call last):
+  File "/home/mansoor/aml_project/brist1d/main.py", line 126, in <module>
+    main()
+  File "/home/mansoor/aml_project/brist1d/main.py", line 116, in main
+    X_train_processed, X_test_processed = preprocess_func(X_train, X_test)
+TypeError: 'dict' object is not callable
+/usr/local/lib/python3.7/dist-packages/sklearn/experimental/enable_hist_gradient_boosting.py:17: UserWarning: Since version 1.0, it is not needed to import enable_hist_gradient_boosting anymore. HistGradientBoostingClassifier and HistGradientBoostingRegressor are now stable and can be normally imported from sklearn.ensemble.
+  "Since version 1.0, "
+Loading data...
+Data loaded successfully.
+
+Started Selected Preprocessing Strategy: mean_imp
+
+Traceback (most recent call last):
+  File "/home/mansoor/aml_project/brist1d/main.py", line 126, in <module>
+    main()
+  File "/home/mansoor/aml_project/brist1d/main.py", line 116, in main
+    X_train_processed, X_test_processed = preprocess_func(X_train, X_test)
+TypeError: 'dict' object is not callable
+/usr/local/lib/python3.7/dist-packages/sklearn/experimental/enable_hist_gradient_boosting.py:17: UserWarning: Since version 1.0, it is not needed to import enable_hist_gradient_boosting anymore. HistGradientBoostingClassifier and HistGradientBoostingRegressor are now stable and can be normally imported from sklearn.ensemble.
+  "Since version 1.0, "
+Loading data...
+Data loaded successfully.
+
+Started Selected Preprocessing Strategy: mean_imp
+
+Applying Preprocessing Strategy 1: Mean & Most Frequent Imputation
+Strategy 1 applied: Mean imputation for numerical features.
+
+Preprocessing Strategy mean_imp completed in 3.260256290435791 seconds..
+
+Data split into training and validation sets with test size = 0.2
+Training Linear Regression...
+Linear Regression trained in 3.5096 seconds.
+Training Ridge Regression...
+Ridge Regression trained in 0.7581 seconds.
+Training Lasso Regression...
+Lasso Regression trained in 1.5743 seconds.
+Training Decision Tree...
+Decision Tree trained in 45.1029 seconds.
+Training Random Forest...
+Random Forest trained in 188.3252 seconds.
+Training Gradient Boosting...
+Gradient Boosting trained in 657.9524 seconds.
+Training Hist Gradient Boosting...
+Hist Gradient Boosting trained in 303.0409 seconds.
+Training XGBoost...
+XGBoost trained in 63.1621 seconds.
+
+Model Performance Metrics:
+                    Model       MSE      RMSE  R2 Score  Training Time (s)
+0           Random Forest  3.057470  1.748562  0.661969           188.3252
+1                 XGBoost  3.597925  1.896820  0.602217            63.1621
+2  Hist Gradient Boosting  3.813424  1.952799  0.578391           303.0409
+3       Gradient Boosting  4.165383  2.040927  0.539479           657.9524
+4        Ridge Regression  4.469736  2.114175  0.505830             0.7581
+5       Linear Regression  4.469739  2.114176  0.505830             3.5096
+6        Lasso Regression  5.743851  2.396633  0.364965             1.5743
+7           Decision Tree  6.514131  2.552280  0.279803            45.1029
+
+Best Model: Random Forest
+MSE: 3.0575
+RMSE: 1.7486
+R2 Score: 0.6620
+Training Time: 188.3252 seconds
+
+Model performance results saved to /home/mansoor/aml_project//brist1d/results/performance/model_performance_mean_imp.csv
+Model performance plot saved to /home/mansoor/aml_project//brist1d/results/performance/model_performance_mean_imp.png
+
+Retraining the best model (Random Forest) on the entire training data...
+Random Forest retrained on the entire training data in 233.752 seconds.
+Making predictions on the test set using the best model (Random Forest)...
+Test set predictions saved to /home/mansoor/aml_project//brist1d/results/predictions/test_predictions_mean_imp.csv
+
+Preprocessing, training, evaluation, and prediction completed successfully.
+Started Selected Preprocessing Strategy: median_imp
+
+Applying Preprocessing Strategy 2: Median & Constant Imputation
+Strategy 2 applied: Median imputation for numerical features.
+
+Preprocessing Strategy median_imp completed in 11.154501914978027 seconds..
+
+Data split into training and validation sets with test size = 0.2
+Training Linear Regression...
+Linear Regression trained in 3.9859 seconds.
+Training Ridge Regression...
+Ridge Regression trained in 0.8294 seconds.
+Training Lasso Regression...
+Lasso Regression trained in 1.5375 seconds.
+Training Decision Tree...
+Decision Tree trained in 45.9488 seconds.
+Training Random Forest...
+Random Forest trained in 193.7759 seconds.
+Training Gradient Boosting...
+Gradient Boosting trained in 646.4155 seconds.
+Training Hist Gradient Boosting...
+Hist Gradient Boosting trained in 281.1946 seconds.
+Training XGBoost...
+XGBoost trained in 65.9052 seconds.
+
+Model Performance Metrics:
+                    Model       MSE      RMSE  R2 Score  Training Time (s)
+0           Random Forest  3.063402  1.750258  0.661313           193.7759
+1                 XGBoost  3.625681  1.904122  0.599148            65.9052
+2  Hist Gradient Boosting  3.812197  1.952485  0.578527           281.1946
+3       Gradient Boosting  4.169598  2.041959  0.539013           646.4155
+4        Ridge Regression  4.474376  2.115272  0.505317             0.8294
+5       Linear Regression  4.474377  2.115272  0.505317             3.9859
+6        Lasso Regression  5.752237  2.398382  0.364038             1.5375
+7           Decision Tree  6.609021  2.570802  0.269312            45.9488
+
+Best Model: Random Forest
+MSE: 3.0634
+RMSE: 1.7503
+R2 Score: 0.6613
+Training Time: 193.7759 seconds
+
+Model performance results saved to /home/mansoor/aml_project//brist1d/results/performance/model_performance_median_imp.csv
+Model performance plot saved to /home/mansoor/aml_project//brist1d/results/performance/model_performance_median_imp.png
+
+Retraining the best model (Random Forest) on the entire training data...
+Random Forest retrained on the entire training data in 239.1759 seconds.
+Making predictions on the test set using the best model (Random Forest)...
+Test set predictions saved to /home/mansoor/aml_project//brist1d/results/predictions/test_predictions_median_imp.csv
+
+Preprocessing, training, evaluation, and prediction completed successfully.
+Started Selected Preprocessing Strategy: ffill_bfill_imp
+
+Preprocessing Strategy ffill_bfill_imp completed in 0.9819111824035645 seconds..
+
+Data split into training and validation sets with test size = 0.2
+Training Linear Regression...
+Linear Regression trained in 3.4037 seconds.
+Training Ridge Regression...
+Ridge Regression trained in 0.7773 seconds.
+Training Lasso Regression...
+Lasso Regression trained in 1.7878 seconds.
+Training Decision Tree...
+Decision Tree trained in 49.9886 seconds.
+Training Random Forest...
+Random Forest trained in 214.601 seconds.
+Training Gradient Boosting...
+Gradient Boosting trained in 594.245 seconds.
+Training Hist Gradient Boosting...
+Hist Gradient Boosting trained in 279.4147 seconds.
+Training XGBoost...
+XGBoost trained in 66.9344 seconds.
+
+Model Performance Metrics:
+                    Model       MSE      RMSE  R2 Score  Training Time (s)
+0           Random Forest  2.801391  1.673736  0.690281           214.6010
+1                 XGBoost  3.349959  1.830289  0.629631            66.9344
+2  Hist Gradient Boosting  3.746770  1.935658  0.585760           279.4147
+3       Gradient Boosting  4.174199  2.043086  0.538504           594.2450
+4        Ridge Regression  4.454146  2.110485  0.507553             0.7773
+5       Linear Regression  4.454146  2.110485  0.507553             3.4037
+6        Lasso Regression  4.836625  2.199233  0.465267             1.7878
+7           Decision Tree  6.034940  2.456611  0.332782            49.9886
+
+Best Model: Random Forest
+MSE: 2.8014
+RMSE: 1.6737
+R2 Score: 0.6903
+Training Time: 214.601 seconds
+
+Model performance results saved to /home/mansoor/aml_project//brist1d/results/performance/model_performance_ffill_bfill_imp.csv
+Model performance plot saved to /home/mansoor/aml_project//brist1d/results/performance/model_performance_ffill_bfill_imp.png
+
+Retraining the best model (Random Forest) on the entire training data...
+Random Forest retrained on the entire training data in 287.4785 seconds.
+Making predictions on the test set using the best model (Random Forest)...
+Test set predictions saved to /home/mansoor/aml_project//brist1d/results/predictions/test_predictions_ffill_bfill_imp.csv
+
+Preprocessing, training, evaluation, and prediction completed successfully.
+Started Selected Preprocessing Strategy: linear_interp_imp
+
+Preprocessing Strategy linear_interp_imp completed in 5.3725221157073975 seconds..
+
+Data split into training and validation sets with test size = 0.2
+Training Linear Regression...
+Traceback (most recent call last):
+  File "/home/mansoor/aml_project/brist1d/main.py", line 126, in <module>
+    
+  File "/home/mansoor/aml_project/brist1d/main.py", line 120, in main
+    X_train_processed, X_test_processed = preprocess_func(X_train, X_test)
+  File "/home/mansoor/aml_project/brist1d/train_models.py", line 214, in train_test_save_models
+    self.train_and_evaluate(X_train_split, X_val_split, y_train_split, y_val_split)
+  File "/home/mansoor/aml_project/brist1d/train_models.py", line 85, in train_and_evaluate
+    model.fit(X_train, y_train)
+  File "/usr/local/lib/python3.7/dist-packages/sklearn/linear_model/_base.py", line 663, in fit
+    X, y, accept_sparse=accept_sparse, y_numeric=True, multi_output=True
+  File "/usr/local/lib/python3.7/dist-packages/sklearn/base.py", line 581, in _validate_data
+    X, y = check_X_y(X, y, **check_params)
+  File "/usr/local/lib/python3.7/dist-packages/sklearn/utils/validation.py", line 976, in check_X_y
+    estimator=estimator,
+  File "/usr/local/lib/python3.7/dist-packages/sklearn/utils/validation.py", line 800, in check_array
+    _assert_all_finite(array, allow_nan=force_all_finite == "allow-nan")
+  File "/usr/local/lib/python3.7/dist-packages/sklearn/utils/validation.py", line 116, in _assert_all_finite
+    type_err, msg_dtype if msg_dtype is not None else X.dtype
+ValueError: Input contains NaN, infinity or a value too large for dtype('float64').
