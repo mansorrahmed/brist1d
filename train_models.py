@@ -229,5 +229,5 @@ class ModelTrainer:
         predictions = self.predict_test(X_test_processed)
 
         # Save predictions
-        self.save_predictions(test_ids, predictions, results_dir+f'perdictions/test_predictions_{strategy_type}.csv')
+        self.save_predictions(test_ids, predictions, results_dir+f'predictions/test_predictions_{strategy_type}.csv')
 
