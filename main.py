@@ -23,7 +23,7 @@ def main():
         help='Imputation strategy to use. Choices are: mean_imp, median_imp, ffill_bfill_imp, linear_interp_imp, kalman_imp, mice_imp, knn_imp'
     )
     args = parser.parse_args()
-    strategy_type = args.strategy
+    strategy = args.strategy
     proj_dir = args.proj_dir
 
     # =========================
@@ -80,31 +80,31 @@ def main():
         "median_imp": {"method": preprocessor.median_imp, "name": "Median Imputation"}, 
         "ffill_bfill_imp": {"method": preprocessor.ffill_bfill_imp, "name": "Forward-Backward Imputation"}, 
         "linear_interp_imp": {"method": preprocessor.linear_interp_imp, "name": "Linear Interpolation"},
-        "kalman_imp": {"method": preprocessor.kalman_imp, "name": "Kalman Imputation"}, 
+        "kalman_imp": {"method": preprocessor.kalman_imp, "name": "Kalman Filter Imputation"}, 
         "mice_imp": {"method": preprocessor.mice_imp, "name": "Multilpe Imputation by Chained Equations"},  
         "knn_imp": {"method": preprocessor.knn_imp, "name": "KNN Imputation"},  
     }
 
     # Check if the selected strategy exists
-    if strategy_type != None:
-        if strategy_type not in strategy_methods:
-            print(f"Error: Strategy '{strategy_type}' is not recognized.")
+    if strategy != None:
+        if strategy not in strategy_methods:
+            print(f"Error: Strategy '{strategy}' is not recognized.")
             return
         else:
             # Apply the selected preprocessing strategy
-            preprocess_func = strategy_methods[strategy_type]
+            preprocess_func = strategy_methods[strategy]
             start_time = time.time()
-            if strategy_type == "knn_imp":
+            if strategy == "knn_imp":
                 X_train_processed, X_test_processed = preprocess_func(X_train, X_test, n_neighbors=5)
-            elif strategy_type == "mice_imp":
+            elif strategy == "mice_imp":
                 X_train_processed, X_test_processed = preprocess_func(X_train, X_test, max_iter=10, random_state=42)
             else:
                 X_train_processed, X_test_processed = preprocess_func(X_train, X_test)
             preprocessing_time = time.time() - start_time
-            print(f"Preprocessing Strategy {strategy_type} completed in {preprocessing_time} seconds..\n")
+            print(f"Preprocessing Strategy {strategy} completed in {preprocessing_time} seconds..\n")
 
-            model_trainer.train_test_save_models(X_train_processed, X_test_processed, y_train, test_ids, strategy_type,
-                                                 strategy_methods[strategy_type]["name"], preprocessing_time, results_dir)
+            model_trainer.train_test_save_models(X_train_processed, X_test_processed, y_train, test_ids, strategy,
+                                                 strategy_methods[strategy]["name"], preprocessing_time, results_dir)
             print("\nPreprocessing, training, evaluation, and prediction completed successfully.")
 
     else:
@@ -117,7 +117,7 @@ def main():
             preprocessing_time = time.time() - start_time
             print(f"Preprocessing Strategy {strategy} completed in {preprocessing_time} seconds..\n")
             model_trainer.train_test_save_models(X_train_processed, X_test_processed, y_train, test_ids, strategy, 
-                                                 strategy_methods[strategy_type]["name"], preprocessing_time, results_dir)
+                                                 strategy_methods[strategy]["name"], preprocessing_time, results_dir)
             print("\nPreprocessing, training, evaluation, and prediction completed successfully.")
 
 
