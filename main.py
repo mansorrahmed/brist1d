@@ -1,7 +1,8 @@
 import pandas as pd
 import argparse
 from preprocess import Preprocessor
-from train_models import ModelTrainer  
+from train_ml_models import MLModelTrainer  
+from train_dl_models import DLModelTrainer
 import time
 import os
 import warnings
@@ -25,9 +26,21 @@ def main():
         choices=["mean_imp", "median_imp", "ffill_bfill_imp", "linear_interp_imp", "kalman_imp", "mice_imp", "knn_imp", "lstm_imp", "rnn_imp"],
         help='Imputation strategy to use. Choices are: mean_imp, median_imp, ffill_bfill_imp, linear_interp_imp, kalman_imp, mice_imp, knn_imp, lstm_imp, rnn_imp'
     )
+    parser.add_argument(
+        '--epochs', 
+        type=int,
+        required=False
+        )
+    parser.add_argument(
+        '--models', 
+        type=str,
+        required=False
+        )
     args = parser.parse_args()
     strategy = args.strategy
     proj_dir = args.proj_dir
+    epochs = args.epochs
+    models_category = args.models
 
     # =========================
     # Step 2: Load Data 
@@ -58,7 +71,8 @@ def main():
     # =========================
 
     preprocessor = Preprocessor(target_column='bg+1:00') 
-    model_trainer = ModelTrainer()
+    ml_model_trainer = MLModelTrainer()
+    dl_model_trainer = DLModelTrainer(epochs=epochs)
 
     # Define feature columns by excluding target and non-feature columns
     feature_cols = [col for col in train_df.columns if col not in ['bg+1:00', 'id', 'p_num', 'time']]
@@ -89,7 +103,7 @@ def main():
         "lstm_imp": {"method": preprocessor.lstm_imp, "name": "LSTM Imputation"},  
         "rnn_imp": {"method": preprocessor.rnn_imp, "name": "RNN Imputation"}
     }
-
+ 
     # Check if the selected strategy exists
     if strategy != None:
         if strategy not in strategy_methods:
@@ -104,14 +118,21 @@ def main():
             elif strategy == "mice_imp":
                 X_train_processed, X_test_processed = preprocess_func(X_train, X_test, max_iter=10, random_state=42)
             elif strategy in ["lstm_imp", "rnn_imp"]:
-               X_train_processed, X_test_processed = preprocess_func(X_train, X_test, seq_length=72, epochs=2, batch_size=64)
+                if epochs != None:
+                    X_train_processed, X_test_processed = preprocess_func(X_train, X_test, epochs=epochs, seq_length=72, batch_size=64)
+                else:
+                    X_train_processed, X_test_processed = preprocess_func(X_train, X_test)
             else:
                 X_train_processed, X_test_processed = preprocess_func(X_train, X_test)
             preprocessing_time = time.time() - start_time
             print(f"Preprocessing Strategy {strategy} completed in {preprocessing_time} seconds..\n")
 
-            model_trainer.train_test_save_models(X_train_processed, X_test_processed, y_train, test_ids, strategy,
+            if models_category == "ml" or None:
+                ml_model_trainer.train_test_save_models(X_train_processed, X_test_processed, y_train, test_ids, strategy,
                                                  strategy_methods[strategy]["name"], preprocessing_time, results_dir)
+            elif models_category == "dl":
+                dl_model_trainer.train_test_save_models(X_train_processed, X_test_processed, y_train, test_ids, strategy,
+                                                 strategy_methods[strategy]["name"], preprocessing_time, results_dir, models_category)
             print("\nPreprocessing, training, evaluation, and prediction completed successfully.")
 
     else:
@@ -123,7 +144,7 @@ def main():
             X_train_processed, X_test_processed = preprocess_func(X_train, X_test)
             preprocessing_time = time.time() - start_time
             print(f"Preprocessing Strategy {strategy} completed in {preprocessing_time} seconds..\n")
-            model_trainer.train_test_save_models(X_train_processed, X_test_processed, y_train, test_ids, strategy, 
+            ml_model_trainer.train_test_save_models(X_train_processed, X_test_processed, y_train, test_ids, strategy, 
                                                  strategy_methods[strategy]["name"], preprocessing_time, results_dir)
             print("\nPreprocessing, training, evaluation, and prediction completed successfully.")
 

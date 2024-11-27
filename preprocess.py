@@ -199,7 +199,7 @@ class Preprocessor:
         The model is designed to reconstruct the input sequences.
         """
         model = models.Sequential()
-        model.add(layers.SimpleRNN(64, activation='relu', return_sequences=True, input_shape=input_shape, kernel_initializer='he_normal'))
+        model.add(layers.SimpleRNN(64, activation='relu', return_sequences=True, kernel_initializer='he_normal'))
         model.add(layers.SimpleRNN(64, activation='relu', return_sequences=True, kernel_initializer='he_normal'))
         model.add(layers.TimeDistributed(layers.Dense(input_shape[1])))  # Output shape: [samples, seq_length, features_per_step]
         model.compile(optimizer=optimizers.Adam(learning_rate=0.001, clipvalue=1.0), loss='mean_squared_error')
@@ -212,13 +212,13 @@ class Preprocessor:
         """
         model = models.Sequential()
         model.add(layers.Masking(mask_value=mask_value, input_shape=input_shape))
-        model.add(layers.LSTM(64, activation='tanh', return_sequences=True, input_shape=input_shape, kernel_initializer='he_normal'))
+        model.add(layers.LSTM(64, activation='tanh', return_sequences=True, kernel_initializer='he_normal'))
         model.add(layers.LSTM(64, activation='tanh', return_sequences=True, kernel_initializer='he_normal'))
         model.add(layers.TimeDistributed(layers.Dense(input_shape[1])))  # Output shape: [samples, seq_length, features_per_step]
-        model.compile(optimizer=optimizers.Adam(learning_rate=0.001, clipvalue=1.0), loss='mean_squared_error')
+        model.compile(optimizer=optimizers.Adam(learning_rate=0.005, clipvalue=1.0), loss='mean_squared_error')
         return model
 
-    def lstm_imp(self, X_train, X_test, seq_length=72, epochs=2, batch_size=64):
+    def lstm_imp(self, X_train, X_test, epochs=2, seq_length=72, batch_size=64):
         """
         Impute missing values using LSTM-based model with masking.
         """
@@ -244,7 +244,7 @@ class Preprocessor:
         # Reshape data to [samples, seq_length, features_per_step]
         X_train_array = X_train_scaled.values.reshape((X_train_scaled.shape[0], seq_length, features_per_step))
         X_test_array = X_test_scaled.values.reshape((X_test_scaled.shape[0], seq_length, features_per_step))
-        
+        print((seq_length, features_per_step))
         # Build and train the LSTM model with masking
         model = self.build_lstm(input_shape=(seq_length, features_per_step), mask_value=mask_value)
         
@@ -276,7 +276,7 @@ class Preprocessor:
         print("LSTM-based Imputation with Masking completed.\n")
         return X_train_imputed, X_test_imputed
 
-    def rnn_imp(self, X_train, X_test, seq_length=12, epochs=10, batch_size=64):
+    def rnn_imp(self, X_train, X_test,  epochs=2, seq_length=12, batch_size=64):
         """
         Impute missing values using RNN-based model.
         """

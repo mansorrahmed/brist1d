@@ -16,7 +16,7 @@ import warnings
 warnings.filterwarnings('ignore')  # Suppress warnings for cleaner output
 
 
-class ModelTrainer:
+class MLModelTrainer:
     def __init__(self, models=None, random_state=42):
         """
         Initializes the ModelTrainer with a dictionary of models.
