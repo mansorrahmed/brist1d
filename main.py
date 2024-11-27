@@ -104,7 +104,7 @@ def main():
             elif strategy == "mice_imp":
                 X_train_processed, X_test_processed = preprocess_func(X_train, X_test, max_iter=10, random_state=42)
             elif strategy in ["lstm_imp", "rnn_imp"]:
-               X_train_processed, X_test_processed = preprocess_func(X_train, X_test, seq_length=10, epochs=5, batch_size=64)
+               X_train_processed, X_test_processed = preprocess_func(X_train, X_test, seq_length=72, epochs=2, batch_size=64)
             else:
                 X_train_processed, X_test_processed = preprocess_func(X_train, X_test)
             preprocessing_time = time.time() - start_time

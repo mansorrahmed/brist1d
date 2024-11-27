@@ -9,9 +9,9 @@ from sklearn.pipeline import Pipeline
 import tensorflow as tf
 from tensorflow import keras
 from keras import layers, models, optimizers
-import warnings
-
-warnings.filterwarnings('ignore')  # Suppress warnings for cleaner output
+# from keras.models import Sequential
+# from layers import SimpleRNN, LSTM, Dense
+# from tensorflow.keras.optimizers import Adam
 
 
 
@@ -96,10 +96,22 @@ class Preprocessor:
 
     def linear_interp_imp(self, X_train, X_test):
         """
-        Linear Interpolation Imputation
+        Linear Interpolation Imputation with additional steps to handle edge cases.
         """
-        X_train_filled = X_train.interpolate(method='linear', axis=0)
-        X_test_filled = X_test.interpolate(method='linear', axis=0)
+        # Fill NaN values at the start or end with forward fill or backward fill
+        X_train_filled = X_train.fillna(method='ffill').fillna(method='bfill')
+        X_test_filled = X_test.fillna(method='ffill').fillna(method='bfill')
+
+        # Apply linear interpolation
+        X_train_filled = X_train_filled.interpolate(method='linear', axis=0)
+        X_test_filled = X_test_filled.interpolate(method='linear', axis=0)
+
+        # Check if there are any NaNs left after interpolation
+        if X_train_filled.isnull().values.any():
+            print("Warning: NaN values found in X_train after interpolation.")
+        if X_test_filled.isnull().values.any():
+            print("Warning: NaN values found in X_test after interpolation.")
+
         return X_train_filled, X_test_filled
     
     def kalman_imp(self, X_train, X_test):
@@ -147,6 +159,7 @@ class Preprocessor:
 
         transformers = [
             ('mice_imputer', IterativeImputer(max_iter=max_iter, random_state=random_state), feature_groups['numerical'])
+            # ('cat_imputer', SimpleImputer(strategy='most_frequent'), feature_groups['categorical'])
         ]
 
         self.pipeline = Pipeline(steps=[
@@ -160,91 +173,161 @@ class Preprocessor:
         self.fitted = True
 
         return X_train_processed, X_test_processed
-
-    def lstm_imp(self, X_train, X_test, seq_length=10, epochs=5, batch_size=64):
-        """
-        LSTM-based imputation for time-series data.
-        """
-        print("Applying LSTM-based Imputation")
-
-        # Combine train and test for consistent scaling and imputation
-        X_combined = pd.concat([X_train, X_test], ignore_index=True)
-
-        # Scale features between 0 and 1
+    
+    def normalize_data(self, X_train, X_test, mask_value):
         scaler = MinMaxScaler()
-        X_scaled = scaler.fit_transform(X_combined)
+        # Fit scaler on non-masked data
+        X_train_no_mask = X_train.replace(mask_value, np.nan)
+        X_test_no_mask = X_test.replace(mask_value, np.nan)
+        scaler.fit(pd.concat([X_train_no_mask, X_test_no_mask], axis=0))
+        
+        # Transform data while preserving the mask value
+        X_train_scaled = X_train_no_mask.copy()
+        X_test_scaled = X_test_no_mask.copy()
+        X_train_scaled = pd.DataFrame(scaler.transform(X_train_no_mask), columns=X_train.columns)
+        X_test_scaled = pd.DataFrame(scaler.transform(X_test_no_mask), columns=X_test.columns)
+        
+        # Restore the mask value
+        X_train_scaled = X_train_scaled.fillna(mask_value)
+        X_test_scaled = X_test_scaled.fillna(mask_value)
+        return X_train_scaled, X_test_scaled
 
-        # # Ensure no NaN values exist after imputation
-        # if np.any(np.isnan(X_scaled)):
-        #     raise ValueError("Data contains NaN values after imputation. Please check the preprocessing.")
 
-        # Prepare data for LSTM
-        X_sequences = self._create_sequences(X_scaled, seq_length)
-
-        # Build LSTM model
-        model = self._build_lstm_model(input_shape=(seq_length, X_train.shape[1]))
-
-        # Apply Gradient Clipping to avoid NaN loss
+    def build_rnn(self, input_shape):
+        """
+        Build a simple RNN model for time-series imputation.
+        The model is designed to reconstruct the input sequences.
+        """
+        model = models.Sequential()
+        model.add(layers.SimpleRNN(64, activation='relu', return_sequences=True, input_shape=input_shape, kernel_initializer='he_normal'))
+        model.add(layers.SimpleRNN(64, activation='relu', return_sequences=True, kernel_initializer='he_normal'))
+        model.add(layers.TimeDistributed(layers.Dense(input_shape[1])))  # Output shape: [samples, seq_length, features_per_step]
         model.compile(optimizer=optimizers.Adam(learning_rate=0.001, clipvalue=1.0), loss='mean_squared_error')
+        return model
 
-        # Train model
-        model.fit(X_sequences, X_sequences, epochs=epochs, batch_size=batch_size, verbose=1)
+    def build_lstm(self, input_shape, mask_value):
+        """
+        Build a simple LSTM model for time-series imputation.
+        The model is designed to reconstruct the input sequences.
+        """
+        model = models.Sequential()
+        model.add(layers.Masking(mask_value=mask_value, input_shape=input_shape))
+        model.add(layers.LSTM(64, activation='tanh', return_sequences=True, input_shape=input_shape, kernel_initializer='he_normal'))
+        model.add(layers.LSTM(64, activation='tanh', return_sequences=True, kernel_initializer='he_normal'))
+        model.add(layers.TimeDistributed(layers.Dense(input_shape[1])))  # Output shape: [samples, seq_length, features_per_step]
+        model.compile(optimizer=optimizers.Adam(learning_rate=0.001, clipvalue=1.0), loss='mean_squared_error')
+        return model
 
-        # Impute missing values
-        X_imputed = self._impute_with_model(model, X_scaled, seq_length)
+    def lstm_imp(self, X_train, X_test, seq_length=72, epochs=2, batch_size=64):
+        """
+        Impute missing values using LSTM-based model with masking.
+        """
+        print("Starting LSTM-based Imputation with Masking...")
+        
+        # Define a mask value that doesn't exist in the data
+        mask_value = -999.0
 
-        # Rescale features back to original scale
-        X_imputed_rescaled = scaler.inverse_transform(X_imputed)
-
-        # Split imputed data back into train and test
-        X_train_imputed = X_imputed_rescaled[:len(X_train)]
-        X_test_imputed = X_imputed_rescaled[len(X_train):]
-
-        # Convert back to DataFrame
+        # Replace missing values with the mask value
+        X_train = X_train.fillna(mask_value)
+        X_test = X_test.fillna(mask_value)
+        
+        # Normalize data without affecting the mask value
+        X_train_scaled, X_test_scaled = self.normalize_data(X_train, X_test, mask_value)
+        
+        # Ensure total_features is divisible by seq_length
+        total_features = X_train_scaled.shape[1]
+        if total_features % seq_length != 0:
+            raise ValueError(f"Total features ({total_features}) not divisible by seq_length ({seq_length}). Adjust seq_length or feature engineering.")
+        
+        features_per_step = total_features // seq_length
+        
+        # Reshape data to [samples, seq_length, features_per_step]
+        X_train_array = X_train_scaled.values.reshape((X_train_scaled.shape[0], seq_length, features_per_step))
+        X_test_array = X_test_scaled.values.reshape((X_test_scaled.shape[0], seq_length, features_per_step))
+        
+        # Build and train the LSTM model with masking
+        model = self.build_lstm(input_shape=(seq_length, features_per_step), mask_value=mask_value)
+        
+        model.fit(
+            X_train_array, 
+            X_train_array, 
+            epochs=epochs, 
+            batch_size=batch_size, 
+            validation_split=0.2, 
+            verbose=1
+        )
+        
+        # Use the model to predict (impute) the sequences
+        X_train_imputed = model.predict(X_train_array)
+        X_test_imputed = model.predict(X_test_array)
+        
+        # Reshape back to original feature shape
+        X_train_imputed = X_train_imputed.reshape((X_train_imputed.shape[0], total_features))
+        X_test_imputed = X_test_imputed.reshape((X_test_imputed.shape[0], total_features))
+        
+        # Inverse transform to original scale
         X_train_imputed = pd.DataFrame(X_train_imputed, columns=X_train.columns)
         X_test_imputed = pd.DataFrame(X_test_imputed, columns=X_test.columns)
-
-        print("LSTM-based Imputation completed.\n")
+        
+        # Replace mask value with NaN to reflect imputed values
+        X_train_imputed = X_train_imputed.replace(mask_value, np.nan)
+        X_test_imputed = X_test_imputed.replace(mask_value, np.nan)
+        
+        print("LSTM-based Imputation with Masking completed.\n")
         return X_train_imputed, X_test_imputed
 
-    def rnn_imp(self, X_train, X_test, seq_length=10, epochs=5, batch_size=64):
+    def rnn_imp(self, X_train, X_test, seq_length=12, epochs=10, batch_size=64):
         """
-        RNN-based imputation for time-series data.
+        Impute missing values using RNN-based model.
         """
-        print("Applying RNN-based Imputation")
+        print("Starting RNN-based Imputation...")
 
-        # Combine train and test for consistent scaling and imputation
-        X_combined = pd.concat([X_train, X_test], ignore_index=True)
+        # Fill missing values
+        X_train = X_train.fillna(0)
+        X_test = X_test.fillna(0)
+        
+        # Normalize data
+        X_train_scaled, X_test_scaled = self.normalize_data(X_train, X_test)
 
-        # Scale features between 0 and 1
+        # Ensure total_features is divisible by seq_length
+        total_features = X_train_scaled.shape[1]
+        if total_features % seq_length != 0:
+            raise ValueError(f"Total features ({total_features}) not divisible by seq_length ({seq_length}). Adjust seq_length or feature engineering.")
+        
+        features_per_step = total_features // seq_length
+
+        # Reshape data to [samples, seq_length, features_per_step]
+        X_train_reshaped = X_train_scaled.reshape((X_train_scaled.shape[0], seq_length, features_per_step))
+        X_test_reshaped = X_test_scaled.reshape((X_test_scaled.shape[0], seq_length, features_per_step))
+
+        # Check for any remaining NaNs
+        if np.isnan(X_train_reshaped).any() or np.isnan(X_test_reshaped).any():
+            raise ValueError("NaN values found in the data after imputation. Please check the preprocessing.")
+
+        # Build and train the RNN model
+        model = self.build_rnn(input_shape=(seq_length, features_per_step))
+        model.fit(
+            X_train_reshaped, 
+            X_train_reshaped, 
+            epochs=epochs, 
+            batch_size=batch_size, 
+            validation_split=0.2, 
+            verbose=2
+        )
+
+        # Use the model to predict (reconstruct) the sequences
+        X_train_imputed = model.predict(X_train_reshaped)
+        X_test_imputed = model.predict(X_test_reshaped)
+
+        # Reshape back to original feature shape
+        X_train_imputed = X_train_imputed.reshape((X_train_imputed.shape[0], seq_length * features_per_step))
+        X_test_imputed = X_test_imputed.reshape((X_test_imputed.shape[0], seq_length * features_per_step))
+
+        # Inverse transform to original scale
         scaler = MinMaxScaler()
-        X_scaled = scaler.fit_transform(X_combined)
-
-        # # Ensure no NaN values exist after imputation
-        # if np.any(np.isnan(X_scaled)):
-        #     raise ValueError("Data contains NaN values after imputation. Please check the preprocessing.")
-
-        # Prepare data for RNN
-        X_sequences, _ = self._create_sequences(X_scaled, seq_length)
-
-        # Build RNN model
-        model = self._build_rnn_model(input_shape=(seq_length, X_train.shape[1]))
-
-        # Apply Gradient Clipping to avoid NaN loss
-        model.compile(optimizer=optimizers.Adam(learning_rate=0.001, clipvalue=1.0), loss='mean_squared_error')
-
-        # Train model
-        model.fit(X_sequences, X_sequences, epochs=epochs, batch_size=batch_size, verbose=1)
-
-        # Impute missing values
-        X_imputed = self._impute_with_model(model, X_scaled, seq_length)
-
-        # Rescale features back to original scale
-        X_imputed_rescaled = scaler.inverse_transform(X_imputed)
-
-        # Split imputed data back into train and test
-        X_train_imputed = X_imputed_rescaled[:len(X_train)]
-        X_test_imputed = X_imputed_rescaled[len(X_train):]
+        scaler.fit(X_train)  # Fit on original (non-scaled) X_train
+        X_train_imputed = scaler.inverse_transform(X_train_imputed)
+        X_test_imputed = scaler.inverse_transform(X_test_imputed)
 
         # Convert back to DataFrame
         X_train_imputed = pd.DataFrame(X_train_imputed, columns=X_train.columns)
@@ -252,53 +335,3 @@ class Preprocessor:
 
         print("RNN-based Imputation completed.\n")
         return X_train_imputed, X_test_imputed
-    
-    
-    def _create_sequences(self, data, seq_length):
-        """
-        Creates sequences of the data for time-series modeling.
-        """
-        sequences = []
-        for i in range(len(data) - seq_length):
-            seq_x = data[i:i + seq_length]
-            sequences.append(seq_x)
-        return np.array(sequences)
-
-    def _build_lstm_model(self, input_shape):
-        """
-        Builds the LSTM model.
-        """
-        model = models.Sequential([
-            layers.LSTM(50, activation='relu', input_shape=input_shape, return_sequences=True),
-            layers.LSTM(50, activation='relu', return_sequences=False),
-            layers.Dense(input_shape[1])
-        ])
-
-        model.compile(optimizer=optimizers.Adam(learning_rate=0.001), loss='mean_squared_error')
-
-        return model
-
-    def _build_rnn_model(self, input_shape):
-        """
-        Builds the RNN model.
-        """
-        model = models.Sequential([
-            layers.SimpleRNN(50, activation='relu', input_shape=input_shape, return_sequences=True),
-            layers.SimpleRNN(50, activation='relu', return_sequences=False),
-            layers.Dense(input_shape[1])
-        ])
-
-        model.compile(optimizer=optimizers.Adam(learning_rate=0.001), loss='mean_squared_error')
-
-        return model
-
-    def _impute_with_model(self, model, X_scaled, seq_length):
-        """
-        Impute missing values using a trained model.
-        """
-        # Pad the sequence with zeros for the missing values and predict
-        padded_sequences = np.zeros_like(X_scaled)
-        for i in range(seq_length, len(X_scaled)):
-            padded_sequences[i] = X_scaled[i - seq_length:i].flatten()
-        
-        return model.predict(padded_sequences)
