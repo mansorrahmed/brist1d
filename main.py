@@ -144,8 +144,12 @@ def main():
             X_train_processed, X_test_processed = preprocess_func(X_train, X_test)
             preprocessing_time = time.time() - start_time
             print(f"Preprocessing Strategy {strategy} completed in {preprocessing_time} seconds..\n")
-            ml_model_trainer.train_test_save_models(X_train_processed, X_test_processed, y_train, test_ids, strategy, 
+            if models_category == "ml" or None:
+                ml_model_trainer.train_test_save_models(X_train_processed, X_test_processed, y_train, test_ids, strategy,
                                                  strategy_methods[strategy]["name"], preprocessing_time, results_dir)
+            elif models_category == "dl":
+                dl_model_trainer.train_test_save_models(X_train_processed, X_test_processed, y_train, test_ids, strategy,
+                                                 strategy_methods[strategy]["name"], preprocessing_time, results_dir, models_category)
             print("\nPreprocessing, training, evaluation, and prediction completed successfully.")
 
 
