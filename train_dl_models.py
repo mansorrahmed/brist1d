@@ -70,12 +70,6 @@ class DLModelTrainer:
     def build_gru_model(self, input_shape):
         """
         Builds and compiles a GRU model.
-
-        Parameters:
-            input_shape (tuple): Shape of the input data (sequence_length, num_features).
-
-        Returns:
-            model: Compiled GRU model.
         """
         model = models.Sequential()
         model.add(layers.GRU(64, activation='tanh', input_shape=input_shape))
@@ -86,7 +80,8 @@ class DLModelTrainer:
     
     def build_tcn_model(self, input_shape):
         model = models.Sequential()
-        model.add(TCN(64, input_shape=(3,64,64)))
+        print(input_shape)
+        model.add(TCN(64, activation='relu', input_shape=input_shape, return_sequences=False))
         model.add(layers.Dropout(0.2))
         model.add(layers.Dense(1))
         model.compile(optimizer=optimizers.Adam(), loss='mse')
@@ -149,6 +144,7 @@ class DLModelTrainer:
 
         # Reshape the data for time-series models (e.g., LSTM, TCN)
         X_train_reshaped, X_val_reshaped = self.reshape_for_timeseries(X_train, X_val)
+        print(X_train_reshaped.shape)
 
         for name, build_model_fn in self.models.items():
             print(f"Training {name}...")
@@ -157,8 +153,10 @@ class DLModelTrainer:
             model = build_model_fn(input_shape=X_train_reshaped.shape[1:])
             
             # Train the model
-            model.fit(X_train_reshaped, y_train, epochs=self.epochs, batch_size=self.batch_size, validation_data=(X_val_reshaped, y_val), verbose=2)
+            history = model.fit(X_train_reshaped, y_train, epochs=self.epochs, batch_size=self.batch_size, validation_data=(X_val_reshaped, y_val), verbose=2)
             training_time = time.time() - start_time
+            # Plot learning curve
+            self.plot_learning_curve(history, name)
 
             # Predict on validation set
             y_pred = model.predict(X_val_reshaped)
@@ -189,9 +187,28 @@ class DLModelTrainer:
         """
         Reshapes the data for time-series models, ensuring 3D format (samples, timesteps, features).
         """
-        X_train_reshaped = X_train.reshape((X_train.shape[0], self.sequence_length, X_train.shape[1] // self.sequence_length))
-        X_val_reshaped = X_val.reshape((X_val.shape[0], self.sequence_length, X_val.shape[1] // self.sequence_length))
+        X_train_reshaped = np.array(X_train).reshape((X_train.shape[0], self.sequence_length, X_train.shape[1] // self.sequence_length))
+        X_val_reshaped = np.array(X_val).reshape((X_val.shape[0], self.sequence_length, X_val.shape[1] // self.sequence_length))
         return X_train_reshaped, X_val_reshaped
+    
+    def plot_learning_curve(self, history, model_name):
+        """
+        Plot the learning curve for training and validation loss.
+        """
+        plt.figure(figsize=(10, 6))
+        plt.plot(history.history['loss'], label=f'{model_name} Training Loss')
+        if 'val_loss' in history.history:
+            plt.plot(history.history['val_loss'], label=f'{model_name} Validation Loss', linestyle='--')
+        plt.title(f'{model_name} Learning Curve')
+        plt.xlabel('Epochs')
+        plt.ylabel('Loss')
+        plt.legend()
+        plt.grid(True)
+        plt.tight_layout()
+        plt.savefig(self.results_dir + f'performance/learning_curve_{self.strategy_type}_{self.models_category}_{model_name}.png', dpi=300)
+        # plt.show()
+        print("Learning curve plot saved ...")
+
     
 
     def display_results(self):
@@ -241,7 +258,7 @@ class DLModelTrainer:
         plt.ylabel('Deep Learning Models', fontsize=14)
         plt.tight_layout()
         plt.savefig(filename, dpi=300)
-        plt.show()
+        # plt.show()
         print(f"Model performance plot saved to {filename}")
 
     def retrain_best_model(self, X_full, y_full):
@@ -360,6 +377,7 @@ class DLModelTrainer:
         self.strategy_type = strategy_type
         self.strategy_name = strategy_name
         self.models_category = models_category
+        self.results_dir = results_dir
 
         # Split data into training and validation sets
         X_train_split, X_val_split, y_train_split, y_val_split = self.split_data(
@@ -384,7 +402,7 @@ class DLModelTrainer:
         # print(X_test_processed.shape)
         # Make predictions on the test set
         predictions = self.predict_test(X_test_processed)
-        print(predictions.shape)
+        # print(predictions.shape)
 
         # Save predictions
         self.save_predictions(test_ids, predictions, results_dir + f'predictions/test_predictions_{strategy_type}_{models_category}.csv')

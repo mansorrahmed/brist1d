@@ -72,7 +72,7 @@ def main():
 
     preprocessor = Preprocessor(target_column='bg+1:00') 
     ml_model_trainer = MLModelTrainer()
-    dl_model_trainer = DLModelTrainer(epochs=epochs, sequence_length=12)
+    dl_model_trainer = DLModelTrainer(epochs=epochs, sequence_length=72)
 
     # Define feature columns by excluding target and non-feature columns
     feature_cols = [col for col in train_df.columns if col not in ['bg+1:00', 'id', 'p_num', 'time']]
@@ -92,7 +92,7 @@ def main():
 
     X_train = X_train.loc[:, X_train.columns.str.startswith('bg-')]
     X_test = X_test.loc[:, X_test.columns.str.startswith('bg-')]
-    print(X_train.shape, X_test.shape)
+    # print(X_train.shape, X_test.shape)
 
 
     # Map strategy names to Preprocessor methods

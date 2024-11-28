@@ -118,6 +118,14 @@ class Preprocessor:
         """
         Kalman Filter Imputation for Time-Series Data
         """
+        # Interpolate missing values (this is an example, you can use other strategies)
+        X_train = X_train.interpolate(method='linear', axis=0)
+        X_test = X_test.interpolate(method='linear', axis=0)
+        
+        # Fill any remaining NaN values (optional, if interpolation didn't fill all)
+        X_train = X_train.fillna(method='ffill').fillna(method='bfill')
+        X_test = X_test.fillna(method='ffill').fillna(method='bfill')
+
         kf = KalmanFilter(initial_state_mean=0, n_dim_obs=X_train.shape[1])
         
         # Kalman filter handles time-series noise and missing data based on the system dynamics.
