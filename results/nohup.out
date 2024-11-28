@@ -1,0 +1,281 @@
+2024-11-27 16:02:20.539582: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libcudart.so.11.0'; dlerror: libcudart.so.11.0: cannot open shared object file: No such file or directory
+2024-11-27 16:02:20.539629: I tensorflow/stream_executor/cuda/cudart_stub.cc:29] Ignore above cudart dlerror if you do not have a GPU set up on your machine.
+2024-11-27 16:02:35.744478: I tensorflow/stream_executor/platform/default/dso_loader.cc:53] Successfully opened dynamic library libcuda.so.1
+2024-11-27 16:02:35.767296: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1733] Found device 0 with properties: 
+pciBusID: 0000:05:00.0 name: NVIDIA Tesla K80 computeCapability: 3.7
+coreClock: 0.8235GHz coreCount: 13 deviceMemorySize: 11.17GiB deviceMemoryBandwidth: 223.96GiB/s
+2024-11-27 16:02:35.768841: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1733] Found device 1 with properties: 
+pciBusID: 0000:06:00.0 name: NVIDIA Tesla K80 computeCapability: 3.7
+coreClock: 0.8235GHz coreCount: 13 deviceMemorySize: 11.17GiB deviceMemoryBandwidth: 223.96GiB/s
+2024-11-27 16:02:35.769014: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libcudart.so.11.0'; dlerror: libcudart.so.11.0: cannot open shared object file: No such file or directory
+2024-11-27 16:02:35.769142: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libcublas.so.11'; dlerror: libcublas.so.11: cannot open shared object file: No such file or directory
+2024-11-27 16:02:35.769261: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libcublasLt.so.11'; dlerror: libcublasLt.so.11: cannot open shared object file: No such file or directory
+2024-11-27 16:02:35.769377: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libcufft.so.10'; dlerror: libcufft.so.10: cannot open shared object file: No such file or directory
+2024-11-27 16:02:35.769493: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libcurand.so.10'; dlerror: libcurand.so.10: cannot open shared object file: No such file or directory
+2024-11-27 16:02:35.769607: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libcusolver.so.11'; dlerror: libcusolver.so.11: cannot open shared object file: No such file or directory
+2024-11-27 16:02:35.769721: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libcusparse.so.11'; dlerror: libcusparse.so.11: cannot open shared object file: No such file or directory
+2024-11-27 16:02:35.769838: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libcudnn.so.8'; dlerror: libcudnn.so.8: cannot open shared object file: No such file or directory
+2024-11-27 16:02:35.769862: W tensorflow/core/common_runtime/gpu/gpu_device.cc:1766] Cannot dlopen some GPU libraries. Please make sure the missing libraries mentioned above are installed properly if you would like to use GPU. Follow the guide at https://www.tensorflow.org/install/gpu for how to download and setup the required libraries for your platform.
+Skipping registering GPU devices...
+2024-11-27 16:02:35.770423: I tensorflow/core/platform/cpu_feature_guard.cc:142] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 FMA
+To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2024-11-27 16:02:35.773273: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1258] Device interconnect StreamExecutor with strength 1 edge matrix:
+2024-11-27 16:02:35.773311: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1264]      
+2024-11-27 16:02:36.250947: I tensorflow/compiler/mlir/mlir_graph_optimization_pass.cc:176] None of the MLIR Optimization Passes are enabled (registered 2)
+2024-11-27 16:02:36.251391: I tensorflow/core/platform/profile_utils/cpu_utils.cc:114] CPU Frequency: 2400205000 Hz
+Loading data...
+Data loaded successfully.
+
+Started Selected Preprocessing Strategy: mean_imp
+
+Applying Preprocessing Strategy 1: Mean & Most Frequent Imputation
+Strategy 1 applied: Mean imputation for numerical features.
+
+Preprocessing Strategy mean_imp completed in 2.9199438095092773 seconds..
+
+Data split into training and validation sets with test size = 0.2
+Training LSTM...
+Epoch 1/50
+2213/2213 - 89s - loss: 9.9829 - val_loss: 9.0817
+Epoch 2/50
+2213/2213 - 87s - loss: 9.2184 - val_loss: 8.9948
+Epoch 3/50
+2213/2213 - 87s - loss: 9.1797 - val_loss: 9.0101
+Epoch 4/50
+2213/2213 - 87s - loss: 9.1825 - val_loss: 8.9929
+Epoch 5/50
+2213/2213 - 87s - loss: 9.1686 - val_loss: 9.0161
+Epoch 6/50
+2213/2213 - 87s - loss: 9.1591 - val_loss: 9.0008
+Epoch 7/50
+2213/2213 - 89s - loss: 9.1509 - val_loss: 8.9950
+Epoch 8/50
+2213/2213 - 87s - loss: 9.1395 - val_loss: 8.9885
+Epoch 9/50
+2213/2213 - 87s - loss: 9.1216 - val_loss: 8.9964
+Epoch 10/50
+2213/2213 - 87s - loss: 9.1207 - val_loss: 9.0124
+Epoch 11/50
+2213/2213 - 87s - loss: 9.1045 - val_loss: 8.9902
+Epoch 12/50
+2213/2213 - 88s - loss: 8.3262 - val_loss: 6.0226
+Epoch 13/50
+2213/2213 - 86s - loss: 4.9481 - val_loss: 4.4605
+Epoch 14/50
+2213/2213 - 87s - loss: 4.4838 - val_loss: 4.3695
+Epoch 15/50
+2213/2213 - 87s - loss: 4.4178 - val_loss: 4.2485
+Epoch 16/50
+2213/2213 - 88s - loss: 4.3545 - val_loss: 4.3730
+Epoch 17/50
+2213/2213 - 88s - loss: 4.3218 - val_loss: 4.1849
+Epoch 18/50
+2213/2213 - 87s - loss: 4.2796 - val_loss: 4.2626
+Epoch 19/50
+2213/2213 - 89s - loss: 4.2547 - val_loss: 4.2728
+Epoch 20/50
+2213/2213 - 88s - loss: 4.2214 - val_loss: 4.1358
+Epoch 21/50
+2213/2213 - 87s - loss: 4.1974 - val_loss: 4.1280
+Epoch 22/50
+2213/2213 - 88s - loss: 4.1645 - val_loss: 4.1091
+Epoch 23/50
+2213/2213 - 88s - loss: 4.1453 - val_loss: 4.2289
+Epoch 24/50
+2213/2213 - 88s - loss: 4.1290 - val_loss: 4.3305
+Epoch 25/50
+2213/2213 - 88s - loss: 4.0881 - val_loss: 4.0368
+Epoch 26/50
+2213/2213 - 87s - loss: 4.0525 - val_loss: 4.0433
+Epoch 27/50
+2213/2213 - 87s - loss: 4.0377 - val_loss: 4.1018
+Epoch 28/50
+2213/2213 - 88s - loss: 4.1855 - val_loss: 8.7057
+Epoch 29/50
+2213/2213 - 88s - loss: 5.6360 - val_loss: 5.6468
+Epoch 30/50
+2213/2213 - 84s - loss: 4.9235 - val_loss: 4.4195
+Epoch 31/50
+2213/2213 - 84s - loss: 4.3626 - val_loss: 4.2672
+Epoch 32/50
+2213/2213 - 83s - loss: 4.2547 - val_loss: 4.2204
+Epoch 33/50
+2213/2213 - 85s - loss: 4.2075 - val_loss: 4.1908
+Epoch 34/50
+2213/2213 - 85s - loss: 4.1561 - val_loss: 4.0793
+Epoch 35/50
+2213/2213 - 84s - loss: 4.3946 - val_loss: 4.1920
+Epoch 36/50
+2213/2213 - 84s - loss: 4.0930 - val_loss: 4.1173
+Epoch 37/50
+2213/2213 - 85s - loss: 4.0885 - val_loss: 4.0799
+Epoch 38/50
+2213/2213 - 84s - loss: 4.0638 - val_loss: 4.1066
+Epoch 39/50
+2213/2213 - 84s - loss: 4.0216 - val_loss: 4.1301
+Epoch 40/50
+2213/2213 - 84s - loss: 4.0006 - val_loss: 4.0540
+Epoch 41/50
+2213/2213 - 86s - loss: 3.9500 - val_loss: 4.0206
+Epoch 42/50
+2213/2213 - 88s - loss: 3.9359 - val_loss: 3.9876
+Epoch 43/50
+2213/2213 - 87s - loss: 3.9071 - val_loss: 3.9388
+Epoch 44/50
+2213/2213 - 87s - loss: 3.8850 - val_loss: 3.9291
+Epoch 45/50
+2213/2213 - 87s - loss: 3.8546 - val_loss: 4.2621
+Epoch 46/50
+2213/2213 - 87s - loss: 3.8375 - val_loss: 3.8832
+Epoch 47/50
+2213/2213 - 86s - loss: 3.8051 - val_loss: 3.8798
+Epoch 48/50
+2213/2213 - 87s - loss: 3.7909 - val_loss: 3.8417
+Epoch 49/50
+2213/2213 - 87s - loss: 3.7551 - val_loss: 3.8352
+Epoch 50/50
+2213/2213 - 87s - loss: 3.7329 - val_loss: 3.8825
+Training GRU...
+Epoch 1/50
+2213/2213 - 74s - loss: 8.1999 - val_loss: 5.1416
+Epoch 2/50
+2213/2213 - 73s - loss: 5.2424 - val_loss: 4.6556
+Epoch 3/50
+2213/2213 - 73s - loss: 4.9011 - val_loss: 4.6226
+Epoch 4/50
+2213/2213 - 74s - loss: 4.6975 - val_loss: 4.5535
+Epoch 5/50
+2213/2213 - 73s - loss: 4.5865 - val_loss: 4.6159
+Epoch 6/50
+2213/2213 - 73s - loss: 4.5077 - val_loss: 4.5793
+Epoch 7/50
+2213/2213 - 72s - loss: 4.4222 - val_loss: 4.4548
+Epoch 8/50
+2213/2213 - 72s - loss: 4.3666 - val_loss: 4.1652
+Epoch 9/50
+2213/2213 - 72s - loss: 4.3116 - val_loss: 4.1929
+Epoch 10/50
+2213/2213 - 72s - loss: 4.2626 - val_loss: 4.2504
+Epoch 11/50
+2213/2213 - 72s - loss: 4.2441 - val_loss: 4.0886
+Epoch 12/50
+2213/2213 - 72s - loss: 4.2074 - val_loss: 4.0790
+Epoch 13/50
+2213/2213 - 73s - loss: 4.1630 - val_loss: 4.0716
+Epoch 14/50
+2213/2213 - 73s - loss: 4.1293 - val_loss: 4.0204
+Epoch 15/50
+2213/2213 - 72s - loss: 4.0746 - val_loss: 4.0484
+Epoch 16/50
+2213/2213 - 72s - loss: 4.0443 - val_loss: 4.0214
+Epoch 17/50
+2213/2213 - 72s - loss: 4.0006 - val_loss: 3.9426
+Epoch 18/50
+2213/2213 - 73s - loss: 3.9819 - val_loss: 3.9251
+Epoch 19/50
+2213/2213 - 73s - loss: 3.9280 - val_loss: 3.9768
+Epoch 20/50
+2213/2213 - 72s - loss: 3.9185 - val_loss: 3.9347
+Epoch 21/50
+2213/2213 - 74s - loss: 3.8629 - val_loss: 3.8689
+Epoch 22/50
+2213/2213 - 74s - loss: 3.8252 - val_loss: 3.8452
+Epoch 23/50
+2213/2213 - 74s - loss: 3.7776 - val_loss: 3.8163
+Epoch 24/50
+2213/2213 - 73s - loss: 3.7454 - val_loss: 3.8010
+Epoch 25/50
+2213/2213 - 73s - loss: 3.6991 - val_loss: 3.8230
+Epoch 26/50
+2213/2213 - 81s - loss: 3.6595 - val_loss: 3.7614
+Epoch 27/50
+2213/2213 - 74s - loss: 3.6183 - val_loss: 3.7666
+Epoch 28/50
+2213/2213 - 69s - loss: 3.5865 - val_loss: 3.7146
+Epoch 29/50
+2213/2213 - 69s - loss: 3.9729 - val_loss: 5.2270
+Epoch 30/50
+2213/2213 - 71s - loss: 3.8422 - val_loss: 3.6968
+Epoch 31/50
+2213/2213 - 72s - loss: 3.5072 - val_loss: 3.6645
+Epoch 32/50
+2213/2213 - 73s - loss: 3.4686 - val_loss: 3.6899
+Epoch 33/50
+2213/2213 - 72s - loss: 3.4306 - val_loss: 3.6416
+Epoch 34/50
+2213/2213 - 73s - loss: 3.3939 - val_loss: 3.6845
+Epoch 35/50
+2213/2213 - 73s - loss: 3.3577 - val_loss: 3.6881
+Epoch 36/50
+2213/2213 - 73s - loss: 3.3262 - val_loss: 3.5873
+Epoch 37/50
+2213/2213 - 71s - loss: 3.2999 - val_loss: 3.4954
+Epoch 38/50
+2213/2213 - 70s - loss: 3.2620 - val_loss: 3.5290
+Epoch 39/50
+2213/2213 - 73s - loss: 3.2373 - val_loss: 3.4783
+Epoch 40/50
+2213/2213 - 72s - loss: 3.1983 - val_loss: 3.4527
+Epoch 41/50
+2213/2213 - 72s - loss: 3.1754 - val_loss: 3.5095
+Epoch 42/50
+2213/2213 - 72s - loss: 3.1404 - val_loss: 3.4523
+Epoch 43/50
+2213/2213 - 72s - loss: 3.1154 - val_loss: 3.4323
+Epoch 44/50
+2213/2213 - 72s - loss: 3.0953 - val_loss: 3.4515
+Epoch 45/50
+2213/2213 - 72s - loss: 3.0768 - val_loss: 3.4170
+Epoch 46/50
+2213/2213 - 72s - loss: 3.0458 - val_loss: 3.3954
+Epoch 47/50
+2213/2213 - 73s - loss: 3.0256 - val_loss: 3.4032
+Epoch 48/50
+2213/2213 - 73s - loss: 2.9984 - val_loss: 3.3791
+Epoch 49/50
+2213/2213 - 72s - loss: 2.9838 - val_loss: 3.3242
+Epoch 50/50
+2213/2213 - 72s - loss: 2.9629 - val_loss: 3.3635
+/usr/local/lib/python3.7/dist-packages/requests/__init__.py:114: RequestsDependencyWarning: urllib3 (1.26.12) or chardet (2.3.0)/charset_normalizer (2.1.1) doesn't match a supported version!
+  RequestsDependencyWarning,
+/usr/local/lib/python3.7/dist-packages/sklearn/experimental/enable_hist_gradient_boosting.py:17: UserWarning: Since version 1.0, it is not needed to import enable_hist_gradient_boosting anymore. HistGradientBoostingClassifier and HistGradientBoostingRegressor are now stable and can be normally imported from sklearn.ensemble.
+  "Since version 1.0, "
+Training TCN...
+Traceback (most recent call last):
+  File "/home/mansoor/aml_project/brist1d/main.py", line 158, in <module>
+    main()
+  File "/home/mansoor/aml_project/brist1d/main.py", line 152, in main
+    strategy_methods[strategy]["name"], preprocessing_time, results_dir, models_category)
+  File "/home/mansoor/aml_project/brist1d/train_dl_models.py", line 364, in train_test_save_models
+    self.train_and_evaluate(X_train_split, X_val_split, y_train_split, y_val_split)
+  File "/home/mansoor/aml_project/brist1d/train_dl_models.py", line 155, in train_and_evaluate
+    model = build_model_fn(input_shape=X_train_reshaped.shape[1:])
+  File "/home/mansoor/aml_project/brist1d/train_dl_models.py", line 89, in build_tcn_model
+    model.add(TCN(64, input_shape=(3,64,64)))
+  File "/usr/local/lib/python3.7/dist-packages/tensorflow/python/training/tracking/base.py", line 522, in _method_wrapper
+    result = method(self, *args, **kwargs)
+  File "/usr/local/lib/python3.7/dist-packages/tensorflow/python/keras/engine/sequential.py", line 213, in add
+    layer(x)
+  File "/usr/local/lib/python3.7/dist-packages/tensorflow/python/keras/engine/base_layer.py", line 970, in __call__
+    input_list)
+  File "/usr/local/lib/python3.7/dist-packages/tensorflow/python/keras/engine/base_layer.py", line 1108, in _functional_construction_call
+    inputs, input_masks, args, kwargs)
+  File "/usr/local/lib/python3.7/dist-packages/tensorflow/python/keras/engine/base_layer.py", line 840, in _keras_tensor_symbolic_call
+    return self._infer_output_signature(inputs, args, kwargs, input_masks)
+  File "/usr/local/lib/python3.7/dist-packages/tensorflow/python/keras/engine/base_layer.py", line 880, in _infer_output_signature
+    outputs = call_fn(inputs, *args, **kwargs)
+  File "/usr/local/lib/python3.7/dist-packages/tensorflow/python/autograph/impl/api.py", line 695, in wrapper
+    raise e.ag_error_metadata.to_exception(e)
+ValueError: in user code:
+
+    /home/mansoor/.local/lib/python3.7/site-packages/tcn/tcn.py:344 call  *
+        x, skip_out = res_block(x, training=training)
+    /home/mansoor/.local/lib/python3.7/site-packages/tcn/tcn.py:175 call  *
+        x1 = layer(x1, training=training) if training_flag else layer(x1)
+    /usr/local/lib/python3.7/dist-packages/tensorflow/python/keras/engine/base_layer.py:1013 __call__  **
+        input_spec.assert_input_compatibility(self.input_spec, inputs, self.name)
+    /usr/local/lib/python3.7/dist-packages/tensorflow/python/keras/engine/input_spec.py:219 assert_input_compatibility
+        str(tuple(shape)))
+
+    ValueError: Input 0 of layer SDropout_0 is incompatible with the layer: expected ndim=3, found ndim=4. Full shape received: (None, 3, 64, 64)
+
