@@ -39,8 +39,8 @@ class DLModelTrainer:
         if models is None:
             self.models = {
                 'LSTM': self.build_lstm_model,
-                'GRU': self.build_gru_model,
-                'TCN': self.build_tcn_model
+                'GRU': self.build_gru_model
+                # 'TCN': self.build_tcn_model
             }
         else:
             self.models = models
