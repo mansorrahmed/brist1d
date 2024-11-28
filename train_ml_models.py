@@ -106,6 +106,7 @@ class MLModelTrainer:
 
         self.results = pd.DataFrame(results)
         return self.results
+    
 
     def display_results(self):
         """

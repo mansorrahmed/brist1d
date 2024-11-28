@@ -72,7 +72,7 @@ def main():
 
     preprocessor = Preprocessor(target_column='bg+1:00') 
     ml_model_trainer = MLModelTrainer()
-    dl_model_trainer = DLModelTrainer(epochs=epochs)
+    dl_model_trainer = DLModelTrainer(epochs=epochs, sequence_length=12)
 
     # Define feature columns by excluding target and non-feature columns
     feature_cols = [col for col in train_df.columns if col not in ['bg+1:00', 'id', 'p_num', 'time']]
@@ -83,12 +83,16 @@ def main():
     X_test = test_df[feature_cols]
     test_ids = test_df['id']
     # exclude the carbs and activity features because of very high percentage of missing values
-    X_train = X_train.loc[:, ~X_train.columns.str.startswith('activity-')]
-    X_test = X_test.loc[:, ~X_test.columns.str.startswith('activity-')]
-    X_train = X_train.loc[:, ~X_train.columns.str.startswith('carbs-')]
-    X_test = X_test.loc[:, ~X_test.columns.str.startswith('carbs-')]
-    X_train = X_train.loc[:, ~X_train.columns.str.startswith('insulin-')]
-    X_test = X_test.loc[:, ~X_test.columns.str.startswith('insulin-')]
+    # X_train = X_train.loc[:, ~X_train.columns.str.startswith('activity-')]
+    # X_test = X_test.loc[:, ~X_test.columns.str.startswith('activity-')]
+    # X_train = X_train.loc[:, ~X_train.columns.str.startswith('carbs-')]
+    # X_test = X_test.loc[:, ~X_test.columns.str.startswith('carbs-')]
+    # X_train = X_train.loc[:, ~X_train.columns.str.startswith('insulin-')]
+    # X_test = X_test.loc[:, ~X_test.columns.str.startswith('insulin-')]
+
+    X_train = X_train.loc[:, X_train.columns.str.startswith('bg-')]
+    X_test = X_test.loc[:, X_test.columns.str.startswith('bg-')]
+    print(X_train.shape, X_test.shape)
 
 
     # Map strategy names to Preprocessor methods

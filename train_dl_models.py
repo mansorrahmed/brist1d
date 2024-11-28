@@ -20,7 +20,7 @@ warnings.filterwarnings('ignore')  # Suppress warnings for cleaner output
 
 
 class DLModelTrainer:
-    def __init__(self, epochs=5, models=None, sequence_length=72, batch_size=64, random_state=42):
+    def __init__(self, epochs=5, models=None, sequence_length=12, batch_size=64, random_state=42):
         """
         Initializes the DeepLearningModelTrainer with a dictionary of models.
 
@@ -61,9 +61,9 @@ class DLModelTrainer:
             model: Compiled LSTM model.
         """
         model = models.Sequential()
-        model.add(layers.LSTM(64, activation='tanh', input_shape=input_shape))
+        model.add(layers.LSTM(64, activation='tanh', input_shape=input_shape)) # input and hidden units specified
         model.add(layers.Dropout(0.2))
-        model.add(layers.Dense(1))
+        model.add(layers.Dense(1)) # output layer
         model.compile(optimizer=optimizers.Adam(), loss='mse')
         return model
 
@@ -152,10 +152,13 @@ class DLModelTrainer:
 
         for name, build_model_fn in self.models.items():
             print(f"Training {name}...")
+            start_time = time.time()
+
             model = build_model_fn(input_shape=X_train_reshaped.shape[1:])
             
             # Train the model
             model.fit(X_train_reshaped, y_train, epochs=self.epochs, batch_size=self.batch_size, validation_data=(X_val_reshaped, y_val), verbose=2)
+            training_time = time.time() - start_time
 
             # Predict on validation set
             y_pred = model.predict(X_val_reshaped)
@@ -167,14 +170,20 @@ class DLModelTrainer:
             mae = mean_absolute_error(y_val, y_pred)
             
             results.append({
-                'Model': name,
-                'MSE': mse,
-                'RMSE': rmse,
-                'R2': r2,
-                'MAE': mae
-            })
+            'Model': name,
+            'MSE': mse,
+            'RMSE': rmse,
+            'MAE': mae,
+            'R2 Score': r2,
+            'Training Time (s)': round(training_time, 4),
+            "Strategy type": self.strategy_type,
+            "Preprocessing time": self.preprocessing_time
+        })
+        print(f"{name} trained in {round(training_time, 4)} seconds.")
 
-        return pd.DataFrame(results)
+
+        self.results = pd.DataFrame(results)
+        return self.results
 
     def reshape_for_timeseries(self, X_train, X_val):
         """
@@ -190,7 +199,7 @@ class DLModelTrainer:
         Display the performance metrics in a well-formatted table and identify the best model.
         """
         # Sort models by RMSE
-        results_sorted = self.results.sort_values(by='RMSE').reset_index(drop=True)
+        results_sorted = self.results.sort_values(by='MSE').reset_index(drop=True)
 
         print("\nModel Performance Metrics:")
         print(results_sorted[['Model', 'MSE', 'RMSE', 'MAE', 'R2 Score', 'Training Time (s)']])
@@ -226,9 +235,9 @@ class DLModelTrainer:
         """
         results_sorted = self.results.sort_values(by='RMSE').reset_index(drop=True)
         plt.figure(figsize=(12, 6))
-        sns.barplot(x='RMSE', y='Model', data=results_sorted, palette='viridis')
+        sns.barplot(x='MSE', y='Model', data=results_sorted, palette='viridis')
         plt.title(f'Model Comparison: {self.strategy_name}', fontsize=16)
-        plt.xlabel('RMSE', fontsize=14)
+        plt.xlabel('MSE', fontsize=14)
         plt.ylabel('Deep Learning Models', fontsize=14)
         plt.tight_layout()
         plt.savefig(filename, dpi=300)
@@ -324,9 +333,6 @@ class DLModelTrainer:
             predictions (np.ndarray): Predicted target values.
             filename (str): Name of the CSV file to save the predictions.
         """
-        # Adjust test_ids to match the length of predictions
-        test_ids = test_ids.iloc[self.sequence_length - 1:].reset_index(drop=True)
-
         submission = pd.DataFrame({
             'id': test_ids,
             'bg+1:00': predictions.flatten()
@@ -375,8 +381,10 @@ class DLModelTrainer:
         # Retrain the best model on the entire training set
         self.retrain_best_model(X_train_processed, y_train)
 
+        # print(X_test_processed.shape)
         # Make predictions on the test set
         predictions = self.predict_test(X_test_processed)
+        print(predictions.shape)
 
         # Save predictions
         self.save_predictions(test_ids, predictions, results_dir + f'predictions/test_predictions_{strategy_type}_{models_category}.csv')
