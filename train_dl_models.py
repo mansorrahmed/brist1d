@@ -156,7 +156,7 @@ class DLModelTrainer:
             history = model.fit(X_train_reshaped, y_train, epochs=self.epochs, batch_size=self.batch_size, validation_data=(X_val_reshaped, y_val), verbose=2)
             training_time = time.time() - start_time
             # Plot learning curve
-            self.plot_learning_curve(history, name)
+            # self.plot_learning_curve(history, name)
 
             # Predict on validation set
             y_pred = model.predict(X_val_reshaped)
@@ -205,8 +205,10 @@ class DLModelTrainer:
         plt.legend()
         plt.grid(True)
         plt.tight_layout()
-        plt.savefig(self.results_dir + f'performance/learning_curve_{self.strategy_type}_{self.models_category}_{model_name}.png', dpi=300)
-        # plt.show()
+        plt.savefig(self.results_dir + f'performance/learning_curve_{self.strategy_type}_{self.models_category}_{model_name}_{self.epochs}epochs.png', dpi=300)
+        plt.show()
+        # plt.close()
+        # plt.clf()
         print("Learning curve plot saved ...")
 
     
@@ -258,7 +260,9 @@ class DLModelTrainer:
         plt.ylabel('Deep Learning Models', fontsize=14)
         plt.tight_layout()
         plt.savefig(filename, dpi=300)
-        # plt.show()
+        plt.show()
+        # plt.close()
+        # plt.clf()
         print(f"Model performance plot saved to {filename}")
 
     def retrain_best_model(self, X_full, y_full):
@@ -391,10 +395,10 @@ class DLModelTrainer:
         self.display_results()
 
         # Save results
-        self.save_results(results_dir + f'performance/model_performance_{strategy_type}_{models_category}.csv')
+        self.save_results(results_dir + f'performance/model_performance_{strategy_type}_{models_category}_{self.epochs}epochs.csv')
 
         # Plot results
-        self.plot_results(results_dir + f'performance/model_performance_{strategy_type}_{models_category}.png')
+        self.plot_results(results_dir + f'performance/model_performance_{strategy_type}_{models_category}_{self.epochs}epochs.png')
 
         # Retrain the best model on the entire training set
         self.retrain_best_model(X_train_processed, y_train)
@@ -405,4 +409,4 @@ class DLModelTrainer:
         # print(predictions.shape)
 
         # Save predictions
-        self.save_predictions(test_ids, predictions, results_dir + f'predictions/test_predictions_{strategy_type}_{models_category}.csv')
+        self.save_predictions(test_ids, predictions, results_dir + f'predictions/test_predictions_{strategy_type}_{models_category}_{self.epochs}epochs.csv')
