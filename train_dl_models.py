@@ -56,12 +56,10 @@ class DLModelTrainer:
 
         Parameters:
             input_shape (tuple): Shape of the input data (sequence_length, num_features).
-
-        Returns:
-            model: Compiled LSTM model.
         """
         model = models.Sequential()
-        model.add(layers.LSTM(64, activation='tanh', input_shape=input_shape)) # input and hidden units specified
+        # input and hidden units specified
+        model.add(layers.LSTM(64, activation='tanh', input_shape=input_shape)) 
         model.add(layers.Dropout(0.2))
         model.add(layers.Dense(1)) # output layer
         model.compile(optimizer=optimizers.Adam(), loss='mse')
